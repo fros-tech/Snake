@@ -70,11 +70,11 @@ internal class MyConsole
     {
         // Instantiates a new asterisks, adds it to the asterisks list,
         // creates a thread, adds it to the threads list and starts it
-        Asterisk asterisk = new Asterisk(this);
-        _asterisks.Add(asterisk);
-        Thread thread = new Thread(asterisk.Run);
-        _threads.Add(thread);
-        thread.Start();
+        //Asterisk asterisk = new Asterisk(this);
+        //_asterisks.Add(asterisk);
+        //Thread thread = new Thread(asterisk.Run);
+        //_threads.Add(thread);
+        //thread.Start();
     }
 
     public void RemoveAsterisk()
@@ -82,24 +82,24 @@ internal class MyConsole
         lock (_lockMoving)
         {
             // Remove exactly one asterisk from screen and stop its thread
-            if (!_asterisks.Any()) return; // Fail early
-            Asterisk asteriskToRemove = _asterisks.First();
-            KillAsterisk(asteriskToRemove);
+            // if (!_asterisks.Any()) return; // Fail early
+            // Asterisk asteriskToRemove = _asterisks.First();
+            // KillAsterisk(asteriskToRemove);
         }
     }
 
     public void RemoveAllAsterisks()
     {
-        foreach (Asterisk a in _asterisks.ToList())  // ToList() avoids collection modified exception
-            KillAsterisk(a);
+        // foreach (Asterisk a in _asterisks.ToList())  // ToList() avoids collection modified exception
+        //     KillAsterisk(a);
     }
 
-    private void KillAsterisk(Asterisk a)
-    {
-        a.TurnOffAsterisk(); // remove the asterisk from the console
-        a.IsAlive = false; // Should cause the thread to stop
-        _asterisks.Remove(a);
-    }
+    // private void KillAsterisk(Asterisk a)
+    // {
+    //     // a.TurnOffAsterisk(); // remove the asterisk from the console
+    //     // a.IsAlive = false; // Should cause the thread to stop
+    //     // _asterisks.Remove(a);
+    // }
 
     public void CloseConsole()
     {
@@ -109,48 +109,48 @@ internal class MyConsole
         Console.Clear();
     }
 
-    public int NumAsterisks()
-    {
-        return _asterisks.Count;
-    }
+    // public int NumAsterisks()
+    // {
+    //     // return _asterisks.Count;
+    // }
 
-    public void ShowAsterisk(Asterisk a)
-    {
-        lock (_lockMoving)
-        {
-            do
-            {
-                a.Pos.Randomize();
-            } while (_screenCopy[a.Pos.XPos, a.Pos.YPos] == Asterisk);
-            if(a.Visible)
-              WriteAt(Asterisk, a.Pos);
-        }
-    }
+    // public void ShowAsterisk(Asterisk a)
+    // {
+    //     lock (_lockMoving)
+    //     {
+    //         do
+    //         {
+    //             a.Pos.Randomize();
+    //         } while (_screenCopy[a.Pos.XPos, a.Pos.YPos] == Asterisk);
+    //         if(a.Visible)
+    //           WriteAt(Asterisk, a.Pos);
+    //     }
+    // }
 
-    public void MoveAsterisk(Asterisk a)
-    {
-        lock (_lockMoving)
-        {
-            WriteAt(Space, a.Pos);
-            ShowAsterisk(a);
-        }
-    }
+    // public void MoveAsterisk(Asterisk a)
+    // {
+    //     lock (_lockMoving)
+    //     {
+    //         WriteAt(Space, a.Pos);
+    //         ShowAsterisk(a);
+    //     }
+    // }
 
     public void ToggleFreeze()
     {
         FreezeConsole = !FreezeConsole;
     }
 
-    public void ToggleVisible()
-    {
-        lock (_lockMoving)
-        {
-            foreach (Asterisk a in _asterisks)
-            {
-                a.Visible = !a.Visible;
-                WriteAt(!a.Visible ? Space : Asterisk, a.Pos);
-            }
-            HideAsterisks = !HideAsterisks;
-        }
-    }
+    // public void ToggleVisible()
+    // {
+    //     lock (_lockMoving)
+    //     {
+    //         foreach (Asterisk a in _asterisks)
+    //         {
+    //             a.Visible = !a.Visible;
+    //             WriteAt(!a.Visible ? Space : Asterisk, a.Pos);
+    //         }
+    //         HideAsterisks = !HideAsterisks;
+    //     }
+    // }
 }

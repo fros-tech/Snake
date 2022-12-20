@@ -11,7 +11,7 @@ namespace Snake
         
         static void Main(string[] args) 
         {
-            new Program().go();
+            new Program().go(); 
         }
     }
 }
