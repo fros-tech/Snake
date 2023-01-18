@@ -20,19 +20,19 @@ namespace Snake
 
         public void AddTreat()
         {
-            int tempXPos, tempYPos;
-            for(int i=0; i<5; i++)
+            // make up to 5 attempts at placing a treat on the Board
+            Position tempPos = new Position();
+            int count = 0;
+            bool placeTreat;
+            do
             {
-                tempXPos = rand.Next(1,c.getWidth());
-                tempYPos = rand.Next(1,c.getHeight());
-                if (c.isBlank(tempXPos,tempYPos)) 
-                { 
-                    c.WriteAt('+', new Position(tempXPos, tempYPos));
-                    break;
-                }
-
-            }
-            // TODO add Treat at random blank position
+                tempPos.XPos = rand.Next(1,c.getWidth());
+                tempPos.YPos = rand.Next(1,c.getHeight());
+                placeTreat = c.isBlank(tempPos.XPos, tempPos.YPos);
+                count++;
+            } while ((count < 5) && (!placeTreat));
+            if (placeTreat)
+                c.WriteAt('¤', tempPos);
         }
 
         public bool HasTreat(Position position)
