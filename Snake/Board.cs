@@ -10,14 +10,28 @@ namespace Snake
     {
         List<Treat> Treats;
         MyConsole c;
+        Random rand;
         public Board(MyConsole c)
         {
             this.c = c;
-            Treats= new List<Treat>();
+            Treats = new List<Treat>();
+            rand = new Random();
         }
 
         public void AddTreat()
         {
+            int tempXPos, tempYPos;
+            for(int i=0; i<5; i++)
+            {
+                tempXPos = rand.Next(1,c.getWidth());
+                tempYPos = rand.Next(1,c.getHeight());
+                if (c.isBlank(tempXPos,tempYPos)) 
+                { 
+                    c.WriteAt('+', new Position(tempXPos, tempYPos));
+                    break;
+                }
+
+            }
             // TODO add Treat at random blank position
         }
 

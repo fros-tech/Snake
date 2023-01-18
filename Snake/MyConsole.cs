@@ -40,6 +40,15 @@ internal class MyConsole
             _screenCopy[x, y] = Space;
     }
 
+    public int getWidth() { return ConsoleWidth; }
+
+    public int getHeight() { return ConsoleHeight; }
+
+    public bool isBlank(int x, int y)
+    {
+        return (_screenCopy[x, y] == Space);
+    }
+
     private void WriteAt(string s, Position aPos)
     {
         lock (_lockWriting) // Only one thread at a time here

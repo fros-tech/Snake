@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "TQtXzff+uIN8k8B5RlSH115Rsh6CmRmE4t2qvIKSk63us74B1Nw3Gs0t6e7HkEiG739lojxHcdHtCzPbm03eWw==",
+  "dgSpecHash": "J9ZEZZkzOZpfzL4sGzaKeHqWmChmfbOBwB+Q40m5/TIlE2ZOSiEUFY1tz3iKsCg3HzjzrDWzp+Q1h3WE2wHMWQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Frank Rosbak\\Source\\Repos\\Snake\\Snake\\Snake.csproj",
+  "projectFilePath": "C:\\Users\\Frank Rosbak\\source\\repos\\Snake\\Snake\\Snake.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }
