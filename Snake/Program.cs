@@ -37,7 +37,7 @@ namespace Snake
                 timeElapsed = DateTime.Now - timeStamp;
                 if (timeElapsed.Milliseconds > 500)
                 {
-                  c.WriteAt("Snake Length :"+s.SnakeLength() , 5, 0);  // TODO Add snake length update on console
+                  c.WriteAt(" Snake Length :"+s.SnakeLength()+" " , 5, 0);  // TODO Add snake length update on console
                   timeStamp = DateTime.Now;
                 }
                 endProgram = weDied;

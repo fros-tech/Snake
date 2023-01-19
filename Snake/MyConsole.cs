@@ -58,6 +58,7 @@ internal class MyConsole
             Console.CursorLeft = aPos.XPos;
             Console.CursorTop = aPos.YPos;
             Console.Write(s);
+            _screenCopy![aPos.XPos, aPos.YPos] = s[0];
             Console.CursorLeft = saveXPos;
             Console.CursorTop = saveYPos;
         }
@@ -71,7 +72,6 @@ internal class MyConsole
 
     public void WriteAt(char c, Position aPos)
     {
-        _screenCopy![aPos.XPos, aPos.YPos] = c;
         WriteAt(c.ToString(), aPos);
     }
 
