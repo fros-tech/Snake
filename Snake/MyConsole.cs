@@ -44,6 +44,11 @@ internal class MyConsole
         return (_screenCopy[x, y] == Space);
     }
 
+    public bool isBlank(Position p)
+    {
+        return (_screenCopy[p.XPos, p.YPos] == Space);
+    }
+
     private void WriteAt(string s, Position aPos)
     {
         lock (_lockWriting) // Only one thread at a time here

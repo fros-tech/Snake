@@ -8,6 +8,7 @@ namespace Snake
 {
     internal class Board
     {
+        const char TreatChar = '@';
         List<Treat> Treats;
         MyConsole c;
         Random rand;
@@ -42,20 +43,20 @@ namespace Snake
             bool placeTreat;
             do
             {
-                tempPos.XPos = rand.Next(1,c.getWidth());
-                tempPos.YPos = rand.Next(1,c.getHeight());
+                tempPos.XPos = rand.Next(1,c.getWidth()-1);
+                tempPos.YPos = rand.Next(1,c.getHeight()-1);
                 placeTreat = c.isBlank(tempPos.XPos, tempPos.YPos);
                 count++;
             } while ((count < 5) && (!placeTreat));
             if (placeTreat)
-                c.WriteAt('¤', tempPos);
+                c.WriteAt(TreatChar, tempPos);
         }
 
         public bool HasTreat(Position position)
         {
             foreach(Treat t in Treats) 
             {
-                if (t.GetPosition() == position)
+                if ((t.GetPosition().XPos == position.XPos) && (t.GetPosition().YPos == position.YPos))
                     return true;
             }
             return false;
