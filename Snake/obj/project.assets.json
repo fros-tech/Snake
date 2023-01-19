@@ -8,26 +8,25 @@
     "net7.0": []
   },
   "packageFolders": {
-    "C:\\Users\\Frank Rosbak\\.nuget\\packages\\": {}
+    "/Users/fros/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Frank Rosbak\\Source\\Repos\\Snake\\Snake\\Snake.csproj",
+      "projectUniqueName": "/Users/fros/RiderProjects/Snake/Snake/Snake.csproj",
       "projectName": "Snake",
-      "projectPath": "C:\\Users\\Frank Rosbak\\Source\\Repos\\Snake\\Snake\\Snake.csproj",
-      "packagesPath": "C:\\Users\\Frank Rosbak\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Frank Rosbak\\Source\\Repos\\Snake\\Snake\\obj\\",
+      "projectPath": "/Users/fros/RiderProjects/Snake/Snake/Snake.csproj",
+      "packagesPath": "/Users/fros/.nuget/packages/",
+      "outputPath": "/Users/fros/RiderProjects/Snake/Snake/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Frank Rosbak\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/Users/fros/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net7.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "/usr/local/share/dotnet/library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -61,7 +60,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.101\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.100/RuntimeIdentifierGraph.json"
       }
     }
   }
