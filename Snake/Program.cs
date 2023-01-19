@@ -35,18 +35,15 @@ namespace Snake
             do
             {
                 timeElapsed = DateTime.Now - timeStamp;
-                //if (timeElapsed.Milliseconds > 200)
-                //{
-                //    c.WriteAt("Snake Length :" , 1, 1);  // TODO Add snake length update on console
-                //    c.WriteAt("Console frozen     :" + c.FreezeConsole + " ", 1, 2);
-                //    c.WriteAt("Asterisks hidden   :" + c.HideAsterisks + " ", 1, 3);
-                //    timeStamp = DateTime.Now;
-                //}
+                if (timeElapsed.Milliseconds > 500)
+                {
+                  c.WriteAt("Snake Length :"+s.SnakeLength() , 5, 0);  // TODO Add snake length update on console
+                  timeStamp = DateTime.Now;
+                }
                 endProgram = weDied;
-                //if (Console.KeyAvailable)
-                //{
-                    k = Console.ReadKey(true).Key;  // true causes the console NOT to echo the key pressed onto the console
-                    switch (k)
+                if (Console.KeyAvailable)
+                {
+                    switch (Console.ReadKey(true).Key)  // true causes the console NOT to echo the key pressed onto the console
                     {
                         case ConsoleKey.Q:          { endProgram = true; break; }
                         case ConsoleKey.Spacebar:   { break; } // PauseGame
@@ -56,12 +53,14 @@ namespace Snake
                         case ConsoleKey.LeftArrow:  { s.SetDirection(Snake.Directions.Left);  break; } // TODO Snake Direction Left
                         case ConsoleKey.R:          { break; } // ??
                     }
-                //}
+                }
             } while (!endProgram);
             s.killSnake();
             c.CloseConsole();
             if (weDied)
                 Console.WriteLine("Arrgghh!");
+            snakeThread.Join();
+            boardThread.Join();
         }
 
         static void Main(string[] args) 

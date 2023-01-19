@@ -70,7 +70,7 @@ namespace Snake
             this.dir = dir;
         }
 
-        int SnakeLength()
+        public int SnakeLength()
         {
             return positions.Count;
         }
@@ -93,6 +93,7 @@ namespace Snake
                 if (!growSnake && !c.isBlank(nextPos))  // Is it end of the game
                 {
                     SnakeAlive = false;
+                    break;
                 }
                 if (!growSnake) // if snake is not growing we need to remove the first entry in positions and blank the position
                 {
@@ -103,7 +104,7 @@ namespace Snake
                 c.WriteAt('*', positions.Last());
                 c.WriteAt('O', nextPos);
                 positions.Add(nextPos);
-                Thread.Sleep(200);
+                Thread.Sleep(100);
             } while (SnakeAlive);
             RemoveSnake();
         }

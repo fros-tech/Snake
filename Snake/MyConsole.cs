@@ -46,7 +46,7 @@ internal class MyConsole
 
     public bool isBlank(Position p)
     {
-        return (_screenCopy[p.XPos, p.YPos] == Space);
+        return isBlank(p.XPos, p.YPos);
     }
 
     private void WriteAt(string s, Position aPos)
