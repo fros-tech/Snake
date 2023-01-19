@@ -22,19 +22,14 @@ internal class MyConsole
 
     public void InitializeConsole()
     {
-        Console.SetBufferSize(230,60);
-        Console.SetWindowSize(230,60);
-        Console.WriteLine("LargestWindowWidth  :{0}", Console.LargestWindowWidth);
-        Console.WriteLine("LargestWindowHeight :{0}", Console.LargestWindowHeight);
-        Console.WriteLine("BufferWidth         :{0}", Console.BufferWidth);
-        Console.WriteLine("BufferHeight        :{0}", Console.BufferHeight);
-        _screenCopy = new char[Console.WindowWidth, Console.WindowHeight];
+        Console.SetBufferSize(120,30);
+        Console.SetWindowSize(120,30);
+        ConsoleWidth = Console.WindowWidth;
+        ConsoleHeight = Console.WindowHeight;
+        _screenCopy = new char[ConsoleWidth, ConsoleHeight];
         Console.Clear();
         Console.CursorVisible = false;
         FreezeConsole = false;
-        HideAsterisks = false;
-        ConsoleWidth = Console.WindowWidth;
-        ConsoleHeight = Console.WindowHeight;
         for (var x = 0; x < ConsoleWidth; x++)
           for (var y = 0; y < ConsoleHeight; y++)
             _screenCopy[x, y] = Space;

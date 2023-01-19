@@ -16,6 +16,22 @@ namespace Snake
             this.c = c;
             Treats = new List<Treat>();
             rand = new Random();
+            
+            c.WriteAt("+", 0, 0);
+            c.WriteAt("+", 0, c.getHeight()-1);
+            c.WriteAt("+", c.getWidth()-1, 0);
+            c.WriteAt("+", c.getWidth()-1, c.getHeight()-1);
+            for (byte b = 1; b < c.getWidth()-1; b++)
+            {
+                c.WriteAt("-", b, 0);
+                c.WriteAt("-", b, c.getHeight()-1);
+            }
+            for (byte b=1; b < c.getHeight()-1; b++)
+            {
+                c.WriteAt("|", 0, b);
+                c.WriteAt("|", c.getWidth()-1, b);
+            }
+
         }
 
         public void AddTreat()

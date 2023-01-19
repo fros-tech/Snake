@@ -13,8 +13,10 @@ namespace Snake
         public void go()
         {
             c = new MyConsole();
-            Snake s = new Snake(c);
             c.InitializeConsole();
+            Snake s = new Snake(c);
+            Board b = new Board(c);
+
             var endProgram = false;
             ConsoleKey k;
 
