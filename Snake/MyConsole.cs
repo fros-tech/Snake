@@ -20,10 +20,14 @@ internal class MyConsole
 
     private List<Thread> _threads = new();
 
+    
     public void InitializeConsole()
     {
-        Console.SetBufferSize(120,30);
-        Console.SetWindowSize(120,30);
+        if (OperatingSystem.IsWindows())
+        {
+            Console.SetBufferSize(120, 30);
+            Console.SetWindowSize(120, 30);
+        }
         ConsoleWidth = Console.WindowWidth;
         ConsoleHeight = Console.WindowHeight;
         _screenCopy = new char[ConsoleWidth, ConsoleHeight];
