@@ -5,6 +5,7 @@ namespace Snake
     internal class Program
     {
         MyConsole c;
+        public bool endProgram = false;
         public void go()
         {
             c = new MyConsole();
@@ -13,8 +14,10 @@ namespace Snake
             Snake s = new Snake(c,b);
             bool weDied = false;
 
-            Thread t = new Thread(s.MoveSnake);
-            t.Start();
+            Thread snakeThread = new Thread(s.MoveSnake);
+            snakeThread.Start();
+            Thread boardThread = new Thread(b.AddTreats);
+            boardThread.Start();
 
             b.AddTreat();
             b.AddTreat();
@@ -22,7 +25,6 @@ namespace Snake
             b.AddTreat();
             b.AddTreat();
 
-            var endProgram = false;
             ConsoleKey k;
 
             DateTime timeStamp;
@@ -41,8 +43,8 @@ namespace Snake
                 //    timeStamp = DateTime.Now;
                 //}
                 endProgram = weDied;
-                if (Console.KeyAvailable)
-                {
+                //if (Console.KeyAvailable)
+                //{
                     k = Console.ReadKey(true).Key;  // true causes the console NOT to echo the key pressed onto the console
                     switch (k)
                     {
@@ -54,16 +56,12 @@ namespace Snake
                         case ConsoleKey.LeftArrow:  { s.SetDirection(Snake.Directions.Left);  break; } // TODO Snake Direction Left
                         case ConsoleKey.R:          { break; } // ??
                     }
-                }
+                //}
             } while (!endProgram);
-            if (weDied)
-            {
-                Console.WriteLine("Arrgghh!");
-                Console.ReadLine();
-            }
+            s.killSnake();
             c.CloseConsole();
-
-
+            if (weDied)
+                Console.WriteLine("Arrgghh!");
         }
 
         static void Main(string[] args) 

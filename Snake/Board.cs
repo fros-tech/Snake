@@ -32,7 +32,6 @@ namespace Snake
                 c.WriteAt("|", 0, b);
                 c.WriteAt("|", c.getWidth()-1, b);
             }
-
         }
 
         public void AddTreat()
@@ -49,7 +48,19 @@ namespace Snake
                 count++;
             } while ((count < 5) && (!placeTreat));
             if (placeTreat)
+            {
                 c.WriteAt(TreatChar, tempPos);
+                Treats.Add(new Treat(tempPos, TreatChar));
+            }
+        }
+
+        public void AddTreats()
+        {
+            while(true)
+            {
+                AddTreat();
+                Thread.Sleep(3000);
+            }
         }
 
         public bool HasTreat(Position position)
