@@ -9,29 +9,40 @@ namespace Snake
     internal class Board
     {
         const char TreatChar = '@';
+        const byte NumInitialTreats = 5;
+
         List<Treat> Treats;
-        MyConsole c;
+        MyConsole console;
         Random rand;
-        public Board(MyConsole c)
+        GameState state;
+
+        public Board(MyConsole console, GameState state)
         {
-            this.c = c;
+            this.console = console;
             Treats = new List<Treat>();
             rand = new Random();
-            
-            c.WriteAt("+", 0, 0);
-            c.WriteAt("+", 0, c.getHeight()-1);
-            c.WriteAt("+", c.getWidth()-1, 0);
-            c.WriteAt("+", c.getWidth()-1, c.getHeight()-1);
-            for (byte b = 1; b < c.getWidth()-1; b++)
+            this.state = state;
+            SetupBoard();
+        }
+
+        private void SetupBoard()
+        {
+            console.WriteAt("+", 0, 0);
+            console.WriteAt("+", 0, console.getHeight() - 1);
+            console.WriteAt("+", console.getWidth() - 1, 0);
+            console.WriteAt("+", console.getWidth() - 1, console.getHeight() - 1);
+            for (byte b = 1; b < console.getWidth() - 1; b++)
             {
-                c.WriteAt("-", b, 0);
-                c.WriteAt("-", b, c.getHeight()-1);
+                console.WriteAt("-", b, 0);
+                console.WriteAt("-", b, console.getHeight() - 1);
             }
-            for (byte b=1; b < c.getHeight()-1; b++)
+            for (byte b = 1; b < console.getHeight() - 1; b++)
             {
-                c.WriteAt("|", 0, b);
-                c.WriteAt("|", c.getWidth()-1, b);
+                console.WriteAt("|", 0, b);
+                console.WriteAt("|", console.getWidth() - 1, b);
             }
+            for (byte b = 0; b < NumInitialTreats; b++)
+                AddTreat();
         }
 
         public void AddTreat()
@@ -42,28 +53,28 @@ namespace Snake
             bool placeTreat;
             do
             {
-                tempPos.XPos = rand.Next(1,c.getWidth()-1);
-                tempPos.YPos = rand.Next(1,c.getHeight()-1);
-                placeTreat = c.isBlank(tempPos.XPos, tempPos.YPos);
+                tempPos.XPos = rand.Next(1,console.getWidth()-1);
+                tempPos.YPos = rand.Next(1,console.getHeight()-1);
+                placeTreat = console.isBlank(tempPos.XPos, tempPos.YPos);
                 count++;
             } while ((count < 5) && (!placeTreat));
             if (placeTreat)
             {
-                c.WriteAt(TreatChar, tempPos);
+                console.WriteAt(TreatChar, tempPos);
                 Treats.Add(new Treat(tempPos, TreatChar));
             }
         }
 
-        public void AddTreats()
+        public void AddTreats()  // This thread method constantly adds treats to the board
         {
-            while(true)
+            while(!state.GameOver)
             {
                 AddTreat();
-                Thread.Sleep(3000);
+                Thread.Sleep(state.TreatDelay);
             }
         }
 
-        public bool HasTreat(Position position)
+        public bool HasTreat(Position position)  // Check if there is a treat at position
         {
             foreach(Treat t in Treats) 
             {

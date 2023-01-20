@@ -4,61 +4,42 @@ namespace Snake
 {
     internal class Program
     {
-        MyConsole c;
-        public bool endProgram = false;
+        MyConsole console;
         public void go()
         {
-            c = new MyConsole();
-            c.InitializeConsole();
-            Board b = new Board(c);
-            Snake s = new Snake(c,b);
-            bool weDied = false;
+            console = new MyConsole();
+            console.InitializeConsole();
+            GameState state = new GameState();
+            Board board = new Board(console, state);        // Creates a new board, and sets it up with a number of treats
+            Snake snake = new Snake(console, board, state);
 
-            Thread snakeThread = new Thread(s.MoveSnake);
+            // Setup Board and snake
+            Thread snakeThread = new Thread(snake.MoveSnake);
             snakeThread.Start();
-            Thread boardThread = new Thread(b.AddTreats);
+            Thread boardThread = new Thread(board.AddTreats);
             boardThread.Start();
 
-            b.AddTreat();
-            b.AddTreat();
-            b.AddTreat();
-            b.AddTreat();
-            b.AddTreat();
-
             ConsoleKey k;
-
-            DateTime timeStamp;
-            TimeSpan timeElapsed;
-            timeStamp = DateTime.Now;
-            // Position p = new Position();
-
             do
             {
-                timeElapsed = DateTime.Now - timeStamp;
-                if (timeElapsed.Milliseconds > 500)
-                {
-                  c.WriteAt(" Snake Length :"+s.SnakeLength()+" " , 5, 0);  // TODO Add snake length update on console
-                  timeStamp = DateTime.Now;
-                }
-                endProgram = weDied;
                 if (Console.KeyAvailable)
                 {
                     switch (Console.ReadKey(true).Key)  // true causes the console NOT to echo the key pressed onto the console
                     {
-                        case ConsoleKey.Q:          { endProgram = true; break; }
+                        case ConsoleKey.Q:          { state.GameOver = true; break; }
                         case ConsoleKey.Spacebar:   { break; } // PauseGame
-                        case ConsoleKey.UpArrow:    { s.SetDirection(Snake.Directions.Up);    break; } // TODO Snake direction up
-                        case ConsoleKey.DownArrow:  { s.SetDirection(Snake.Directions.Down);  break; } // TODO Snake direction down
-                        case ConsoleKey.RightArrow: { s.SetDirection(Snake.Directions.Right); break; } // TODO Snake Direction Right
-                        case ConsoleKey.LeftArrow:  { s.SetDirection(Snake.Directions.Left);  break; } // TODO Snake Direction Left
+                        case ConsoleKey.UpArrow:    { snake.SetDirection(Snake.Directions.Up);    break; } // TODO Snake direction up
+                        case ConsoleKey.DownArrow:  { snake.SetDirection(Snake.Directions.Down);  break; } // TODO Snake direction down
+                        case ConsoleKey.RightArrow: { snake.SetDirection(Snake.Directions.Right); break; } // TODO Snake Direction Right
+                        case ConsoleKey.LeftArrow:  { snake.SetDirection(Snake.Directions.Left);  break; } // TODO Snake Direction Left
                         case ConsoleKey.R:          { break; } // ??
                     }
                 }
-            } while (!endProgram);
-            s.killSnake();
-            c.CloseConsole();
-            if (weDied)
-                Console.WriteLine("Arrgghh!");
+            } while (!state.GameOver);
+            snake.killSnake();
+            console.CloseConsole();
+            console.WriteAt("* GAME OVER *", 10, 10);
+            console.WriteAt("* Total Snake Length :"+snake.SnakeLength(), 10, 11);
             snakeThread.Join();
             boardThread.Join();
         }
