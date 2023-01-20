@@ -10,7 +10,6 @@ namespace Snake
     {
         const char TreatChar = '@';
         const byte NumInitialTreats = 5;
-        int TreatDelay = 3000;
 
         List<Treat> Treats;
         MyConsole console;
@@ -71,7 +70,7 @@ namespace Snake
             while(!state.GameOver)
             {
                 AddTreat();
-                Thread.Sleep(TreatDelay);
+                Thread.Sleep(state.TreatDelay);
             }
         }
 

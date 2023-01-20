@@ -21,6 +21,7 @@ namespace Snake
         const char snakeBodyChar = '*';
         bool SnakeAlive = true;
         const Byte InitialSnakeLength = 7;
+        const int minSnakeDelay = 80;
         GameState state;
         public enum Directions
         {
@@ -80,9 +81,10 @@ namespace Snake
 
         public void MoveSnake()
         {
+            bool growSnake;
+
             do
             {
-                bool growSnake;
                 //   Find next coordinate for the head, based on the direction
                 Position nextPos = null;
                 switch (dir)
@@ -103,12 +105,25 @@ namespace Snake
                     console.WriteAt(' ', positions[0]);
                     positions.RemoveAt(0);
                 }
+                else // snake is growing so we need to increase the speed
+                {
+                    int newDelay = state.SnakeDelay = state.SnakeDelay - SnakeLength();
+                    if (newDelay <= minSnakeDelay)
+                        state.SnakeDelay = minSnakeDelay;
+                    else
+                        state.SnakeDelay = newDelay;
+                    //newDelay = state.TreatDelay -= SnakeLength();
+                    //if (newDelay >= 0)
+                    //  state.TreatDelay -= newDelay;
+                }
                 // Now move the snake head
                 console.WriteAt('*', positions.Last());
                 console.WriteAt('O', nextPos);
                 positions.Add(nextPos);
+                growSnake = false; // Wait till we hit another treat again
                 console.WriteAt(" Snake Length :" + SnakeLength() + " ", 5, 0);  // TODO Add snake length update on console
-                Thread.Sleep(100);
+                console.WriteAt(" Snake Delay  :" + state.SnakeDelay + " ", 25, 0);
+                Thread.Sleep(state.SnakeDelay);
             } while (SnakeAlive);
             state.GameOver = true;
             RemoveSnake();

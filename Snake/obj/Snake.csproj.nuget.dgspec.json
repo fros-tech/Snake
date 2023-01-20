@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Frank Rosbak\\Source\\Repos\\Snake\\Snake\\Snake.csproj": {}
+    "C:\\Users\\Frank Rosbak\\source\\repos\\Snake\\Snake\\Snake.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Frank Rosbak\\Source\\Repos\\Snake\\Snake\\Snake.csproj": {
+    "C:\\Users\\Frank Rosbak\\source\\repos\\Snake\\Snake\\Snake.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Frank Rosbak\\Source\\Repos\\Snake\\Snake\\Snake.csproj",
+        "projectUniqueName": "C:\\Users\\Frank Rosbak\\source\\repos\\Snake\\Snake\\Snake.csproj",
         "projectName": "Snake",
-        "projectPath": "C:\\Users\\Frank Rosbak\\Source\\Repos\\Snake\\Snake\\Snake.csproj",
+        "projectPath": "C:\\Users\\Frank Rosbak\\source\\repos\\Snake\\Snake\\Snake.csproj",
         "packagesPath": "C:\\Users\\Frank Rosbak\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Frank Rosbak\\Source\\Repos\\Snake\\Snake\\obj\\",
+        "outputPath": "C:\\Users\\Frank Rosbak\\source\\repos\\Snake\\Snake\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

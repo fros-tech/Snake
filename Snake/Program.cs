@@ -12,7 +12,6 @@ namespace Snake
             GameState state = new GameState();
             Board board = new Board(console, state);        // Creates a new board, and sets it up with a number of treats
             Snake snake = new Snake(console, board, state);
-            bool weDied = false;
 
             // Setup Board and snake
             Thread snakeThread = new Thread(snake.MoveSnake);
@@ -39,8 +38,8 @@ namespace Snake
             } while (!state.GameOver);
             snake.killSnake();
             console.CloseConsole();
-            if (weDied)
-                Console.WriteLine("Arrgghh!");
+            console.WriteAt("* GAME OVER *", 10, 10);
+            console.WriteAt("* Total Snake Length :"+snake.SnakeLength(), 10, 11);
             snakeThread.Join();
             boardThread.Join();
         }

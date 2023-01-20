@@ -10,5 +10,7 @@ namespace Snake
     {
         public int NumPoints { get; set; } = 0;
         public bool GameOver { get; set; } = false;
+        public int SnakeDelay { get; set; } = 180;
+        public int TreatDelay { get; set; } = 3000;
     }
 }
