@@ -13,7 +13,7 @@ namespace Snake
         // It also contains a method that will let the snake move
         // according to a defined direction
         // The snake detects collisions with console 'objects'
-        // These objects can be food, whic causes the snake to increase
+        // These objects can be food, which cause the snake to increase
         // in length or obstacles whic cause the game to end.
         // The snake will start looking like this: '******O'
 
@@ -50,7 +50,7 @@ namespace Snake
         {
             foreach(Position p in positions)
                 console.WriteAt(' ', p);
-            positions = new List<Position>();  // Leave the previous positions to the garbage collector
+            positions = new List<Position>();  // Leave any previous positions to the garbage collector
         }
 
         private void DrawInitialSnake(MyConsole c)

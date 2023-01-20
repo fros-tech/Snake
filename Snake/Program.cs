@@ -35,6 +35,9 @@ namespace Snake
                         case ConsoleKey.R:          { break; } // ??
                     }
                 }
+                console.WriteAt(" Snake Length :" + snake.SnakeLength() + " ", 5, 0);  // TODO Add snake length update on console
+                console.WriteAt(" Snake Delay  :" + state.SnakeDelay + " ", 25, 0);
+                console.WriteAt(" Treat Delay  :" + state.TreatDelay + " ", 50, 0);
             } while (!state.GameOver);
             snake.killSnake();
             console.CloseConsole();
