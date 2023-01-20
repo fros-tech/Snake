@@ -1,20 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Frank Rosbak\\RiderProjects\\Snake\\Snake\\Snake.csproj": {}
+    "C:\\Users\\Frank Rosbak\\source\\repos\\Snake\\Snake\\Snake.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Frank Rosbak\\RiderProjects\\Snake\\Snake\\Snake.csproj": {
+    "C:\\Users\\Frank Rosbak\\source\\repos\\Snake\\Snake\\Snake.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Frank Rosbak\\RiderProjects\\Snake\\Snake\\Snake.csproj",
+        "projectUniqueName": "C:\\Users\\Frank Rosbak\\source\\repos\\Snake\\Snake\\Snake.csproj",
         "projectName": "Snake",
-        "projectPath": "C:\\Users\\Frank Rosbak\\RiderProjects\\Snake\\Snake\\Snake.csproj",
+        "projectPath": "C:\\Users\\Frank Rosbak\\source\\repos\\Snake\\Snake\\Snake.csproj",
         "packagesPath": "C:\\Users\\Frank Rosbak\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Frank Rosbak\\RiderProjects\\Snake\\Snake\\obj\\",
+        "outputPath": "C:\\Users\\Frank Rosbak\\source\\repos\\Snake\\Snake\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
           "C:\\Users\\Frank Rosbak\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -22,6 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
