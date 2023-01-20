@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Snake
 {
@@ -20,21 +21,23 @@ namespace Snake
         const char snakeBodyChar = '*';
         bool SnakeAlive = true;
         const Byte InitialSnakeLength = 7;
+        GameState state;
         public enum Directions
         {
             Left = 0, Right = 1, Up = 2, Down = 3
         }
 
-        MyConsole c;
+        MyConsole console;
         Directions dir = Directions.Right;
-        Board b;
+        Board board;
         List<Position> positions;
-        public Snake(MyConsole c, Board b)
+        public Snake(MyConsole console, Board board, GameState state)
         {
-            this.c = c;
-            this.b = b;
+            this.console = console;
+            this.board = board;
             positions = new List<Position>();
-            DrawInitialSnake(c);
+            DrawInitialSnake(console);
+            this.state = state;
         }
 
         public void killSnake()
@@ -45,7 +48,7 @@ namespace Snake
         private void RemoveSnake()
         {
             foreach(Position p in positions)
-                c.WriteAt(' ', p);
+                console.WriteAt(' ', p);
             positions = new List<Position>();  // Leave the previous positions to the garbage collector
         }
 
@@ -89,23 +92,25 @@ namespace Snake
                     case Directions.Left:  nextPos = new Position(positions.Last().XPos - 1, positions.Last().YPos); break;
                     case Directions.Right: nextPos = new Position(positions.Last().XPos + 1, positions.Last().YPos); break;
                 }
-                growSnake = b.HasTreat(nextPos);
-                if (!growSnake && !c.isBlank(nextPos))  // Is it end of the game
+                growSnake = board.HasTreat(nextPos);
+                if (!growSnake && !console.isBlank(nextPos))  // Is it end of the game
                 {
                     SnakeAlive = false;
                     break;
                 }
                 if (!growSnake) // if snake is not growing we need to remove the first entry in positions and blank the position
                 {
-                    c.WriteAt(' ', positions[0]);
+                    console.WriteAt(' ', positions[0]);
                     positions.RemoveAt(0);
                 }
                 // Now move the snake head
-                c.WriteAt('*', positions.Last());
-                c.WriteAt('O', nextPos);
+                console.WriteAt('*', positions.Last());
+                console.WriteAt('O', nextPos);
                 positions.Add(nextPos);
+                console.WriteAt(" Snake Length :" + SnakeLength() + " ", 5, 0);  // TODO Add snake length update on console
                 Thread.Sleep(100);
             } while (SnakeAlive);
+            state.GameOver = true;
             RemoveSnake();
         }
     }
