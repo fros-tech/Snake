@@ -1,0 +1,5 @@
+C:\Users\Frank Rosbak\RiderProjects\Snake\Snake\obj\Debug\net7.0\Snake.csproj.AssemblyReference.cache
+C:\Users\Frank Rosbak\RiderProjects\Snake\Snake\obj\Debug\net7.0\Snake.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Frank Rosbak\RiderProjects\Snake\Snake\obj\Debug\net7.0\Snake.AssemblyInfoInputs.cache
+C:\Users\Frank Rosbak\RiderProjects\Snake\Snake\obj\Debug\net7.0\Snake.AssemblyInfo.cs
+C:\Users\Frank Rosbak\RiderProjects\Snake\Snake\obj\Debug\net7.0\Snake.csproj.CoreCompileInputs.cache
