@@ -26,7 +26,7 @@ namespace Snake
         }
 
         private void SetupBoard()
-        {
+        {   // Draws the box on the outer edge of the board, and adds initial treats
             console.WriteAt("+", 0, 0);
             console.WriteAt("+", 0, console.getHeight() - 1);
             console.WriteAt("+", console.getWidth() - 1, 0);
@@ -48,6 +48,8 @@ namespace Snake
         public void AddTreat()
         {
             // make up to 5 attempts at placing a treat on the Board
+            // Board becomes crowded, and the probability of finding
+            // a blank spot decreases with the increase of number of treats
             Position tempPos = new Position();
             int count = 0;
             bool placeTreat;

@@ -12,9 +12,4 @@ public class Position
         XPos = x;
         YPos = y;
     }
-    public void Randomize() 
-    {
-        XPos = MyConsole.Random.Next(0, MyConsole.ConsoleWidth);
-        YPos = MyConsole.Random.Next(0, MyConsole.ConsoleHeight);
-    }
 }

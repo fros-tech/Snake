@@ -17,7 +17,6 @@ namespace Snake
             this.c = c;
         }
 
-        public Position GetPosition()
-        { return position; }
+        public Position GetPosition() { return position; }
     }
 }

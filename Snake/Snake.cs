@@ -17,21 +17,23 @@ namespace Snake
         // in length or obstacles whic cause the game to end.
         // The snake will start looking like this: '******O'
 
-        const char snakeHeadChar = 'O';
-        const char snakeBodyChar = '*';
-        bool SnakeAlive = true;
-        const Byte InitialSnakeLength = 7;
-        const int minSnakeDelay = 80;
-        GameState state;
         public enum Directions
         {
             Left = 0, Right = 1, Up = 2, Down = 3
         }
 
+        const char snakeHeadChar = 'O';
+        const char snakeBodyChar = '*';
+        bool SnakeAlive = true;
+        const Byte InitialSnakeLength = 7;
+        const int minSnakeDelay = 80;
+        Position? nextPos;
+        GameState state;
         MyConsole console;
         Directions dir = Directions.Right;
         Board board;
         List<Position> positions;
+        
         public Snake(MyConsole console, Board board, GameState state)
         {
             this.console = console;
@@ -79,14 +81,21 @@ namespace Snake
             return positions.Count;
         }
 
+        public void DoPostMortem()
+        {
+            if ((console.CharAt(nextPos) == snakeHeadChar) || (console.CharAt(nextPos) == snakeBodyChar))
+                state.CauseOfDeath = "Snake became a cannibal. Started eating itself ....";
+            else
+                state.CauseOfDeath = "Snake hit an obstacle and died a miserable death. RIP.";
+        }
+
         public void MoveSnake()
         {
             bool growSnake;
 
             do
             {
-                //   Find next coordinate for the head, based on the direction
-                Position nextPos = null;
+                //  Find next coordinate for the head, based on the direction
                 switch (dir)
                 {
                     case Directions.Up:    nextPos = new Position(positions.Last().XPos, positions.Last().YPos - 1); break;
@@ -98,10 +107,6 @@ namespace Snake
                 if (!growSnake && !console.isBlank(nextPos))  // Is it end of the game
                 {
                     SnakeAlive = false;
-                    if ((console.CharAt(nextPos) == snakeHeadChar) || (console.CharAt(nextPos) == snakeBodyChar))
-                        state.CauseOfDeath = "Snake became a cannibal. Started eating itself ....";
-                    else
-                        state.CauseOfDeath = "Snake hit an obstacle and died a miserable death. RIP.";
                     break;
                 }
                 if (!growSnake) // if snake is not growing we need to remove the first entry in positions and blank the position
@@ -113,19 +118,17 @@ namespace Snake
                 {
                     state.SnakeDelay = Math.Max(GameState.MinSnakeDelay, state.SnakeDelay - SnakeLength());
                     state.TreatDelay = Math.Max(GameState.MinTreatDelay, state.TreatDelay - SnakeLength()*10);
+                    growSnake = false; // Wait till we hit another treat again
                 }
                 // Now move the snake head
                 console.WriteAt(snakeBodyChar, positions.Last());
                 console.WriteAt(snakeHeadChar, nextPos);
                 positions.Add(nextPos);
-                growSnake = false; // Wait till we hit another treat again
-                console.WriteAt(" Snake Length :" + SnakeLength() + " ", 5, 0);  // TODO Add snake length update on console
-                console.WriteAt(" Snake Delay  :" + state.SnakeDelay + " ", 25, 0);
-                console.WriteAt(" Treat Delay  :" + state.TreatDelay + " ", 50, 0);
                 Thread.Sleep(state.SnakeDelay);
             } while (SnakeAlive);
-            state.GameOver = true;
+            DoPostMortem();
             RemoveSnake();
+            state.GameOver = true;
         }
     }
 }
