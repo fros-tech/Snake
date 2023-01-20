@@ -45,6 +45,11 @@ internal class MyConsole
         return (_screenCopy[x, y] == Space);
     }
 
+    public char CharAt(Position p)
+    {
+        return _screenCopy[p.XPos, p.YPos];
+    }
+
     public bool isBlank(Position p)
     {
         return isBlank(p.XPos, p.YPos);

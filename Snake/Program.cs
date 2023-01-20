@@ -40,6 +40,7 @@ namespace Snake
             console.CloseConsole();
             console.WriteAt("* GAME OVER *", 10, 10);
             console.WriteAt("* Total Snake Length :"+snake.SnakeLength(), 10, 11);
+            console.WriteAt(state.CauseOfDeath, 10, 12);
             snakeThread.Join();
             boardThread.Join();
         }
