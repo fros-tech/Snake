@@ -12,6 +12,7 @@ namespace Snake
         public const int MinTreatDelay = 1500;
         public int NumPoints { get; set; } = 0;
         public bool GameOver { get; set; } = false;
+        public bool EndProgram { get; set; } = false;
         public int TotalSnakeLength { get; set; } = 0;
         public int SnakeDelay { get; set; } = 180;
         public int TreatDelay { get; set; } = 3000;

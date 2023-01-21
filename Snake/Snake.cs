@@ -9,12 +9,12 @@ namespace Snake
 {
     internal class Snake
     {
-        // Thias class contains code that draws a snake on the console.
+        // This class contains code that draws a snake on the console.
         // It also contains a method that will let the snake move
         // according to a defined direction
         // The snake detects collisions with console 'objects'
         // These objects can be food, which cause the snake to increase
-        // in length or obstacles whic cause the game to end.
+        // in length or obstacles which cause the game to end.
         // The snake will start looking like this: '******O'
 
         public enum Directions
@@ -25,7 +25,7 @@ namespace Snake
         const char snakeHeadChar = 'O';
         const char snakeBodyChar = '*';
         bool SnakeAlive = true;
-        const Byte InitialSnakeLength = 7;
+        const byte initialSnakeLength = 7;
         const int minSnakeDelay = 80;
         Position? nextPos;
         GameState state;
@@ -60,7 +60,7 @@ namespace Snake
             // populate first part of the snake
             int MidX = c.getWidth() / 2;
             int MidY = c.getHeight() / 2;
-            for (int i = 0; i < InitialSnakeLength; i++)
+            for (int i = 0; i < initialSnakeLength; i++)
             {
                 positions.Add(new Position(MidX + i, MidY));
             }
@@ -81,7 +81,7 @@ namespace Snake
             return positions.Count;
         }
 
-        public void DoPostMortem()
+        private void DoPostMortem()
         {
             if ((console.CharAt(nextPos) == snakeHeadChar) || (console.CharAt(nextPos) == snakeBodyChar))
                 state.CauseOfDeath = "Snake became a cannibal. Started eating itself ....";

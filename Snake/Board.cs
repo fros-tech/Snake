@@ -8,8 +8,8 @@ namespace Snake
 {
     internal class Board
     {
-        const char TreatChar = '@';
-        const byte NumInitialTreats = 5;
+        private const char TreatChar = '@';
+        private const byte NumInitialTreats = 5;
 
         List<Treat> Treats;
         MyConsole console;
@@ -45,7 +45,7 @@ namespace Snake
                 AddTreat();
         }
 
-        public void AddTreat()
+        private void AddTreat()
         {
             // make up to 5 attempts at placing a treat on the Board
             // Board becomes crowded, and the probability of finding
@@ -60,11 +60,10 @@ namespace Snake
                 placeTreat = console.isBlank(tempPos.XPos, tempPos.YPos);
                 count++;
             } while ((count < 5) && (!placeTreat));
-            if (placeTreat)
-            {
-                console.WriteAt(TreatChar, tempPos);
-                Treats.Add(new Treat(tempPos, TreatChar));
-            }
+            if (!placeTreat)
+                return; 
+            console.WriteAt(TreatChar, tempPos);
+            Treats.Add(new Treat(tempPos, TreatChar));
         }
 
         public void AddTreats()  // This thread method constantly adds treats to the board
