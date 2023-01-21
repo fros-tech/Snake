@@ -13,25 +13,27 @@ namespace Snake
         // It also contains a method that will let the snake move
         // according to a defined direction
         // The snake detects collisions with console 'objects'
-        // These objects can be food, whic causes the snake to increase
+        // These objects can be food, which cause the snake to increase
         // in length or obstacles whic cause the game to end.
         // The snake will start looking like this: '******O'
 
-        const char snakeHead = 'O';
-        const char snakeBodyChar = '*';
-        bool SnakeAlive = true;
-        const Byte InitialSnakeLength = 7;
-        const int minSnakeDelay = 80;
-        GameState state;
         public enum Directions
         {
             Left = 0, Right = 1, Up = 2, Down = 3
         }
 
+        const char snakeHeadChar = 'O';
+        const char snakeBodyChar = '*';
+        bool SnakeAlive = true;
+        const Byte InitialSnakeLength = 7;
+        const int minSnakeDelay = 80;
+        Position? nextPos;
+        GameState state;
         MyConsole console;
         Directions dir = Directions.Right;
         Board board;
         List<Position> positions;
+        
         public Snake(MyConsole console, Board board, GameState state)
         {
             this.console = console;
@@ -50,7 +52,7 @@ namespace Snake
         {
             foreach(Position p in positions)
                 console.WriteAt(' ', p);
-            positions = new List<Position>();  // Leave the previous positions to the garbage collector
+            positions = new List<Position>();  // Leave any previous positions to the garbage collector
         }
 
         private void DrawInitialSnake(MyConsole c)
@@ -66,7 +68,7 @@ namespace Snake
             {
                 c.WriteAt(snakeBodyChar, positions[i]);
             }
-            c.WriteAt(snakeHead, positions.Last());
+            c.WriteAt(snakeHeadChar, positions.Last());
         }
 
         public void SetDirection(Directions dir)
@@ -79,14 +81,21 @@ namespace Snake
             return positions.Count;
         }
 
+        public void DoPostMortem()
+        {
+            if ((console.CharAt(nextPos) == snakeHeadChar) || (console.CharAt(nextPos) == snakeBodyChar))
+                state.CauseOfDeath = "Snake became a cannibal. Started eating itself ....";
+            else
+                state.CauseOfDeath = "Snake hit an obstacle and died a miserable death. RIP.";
+        }
+
         public void MoveSnake()
         {
             bool growSnake;
 
             do
             {
-                //   Find next coordinate for the head, based on the direction
-                Position nextPos = null;
+                //  Find next coordinate for the head, based on the direction
                 switch (dir)
                 {
                     case Directions.Up:    nextPos = new Position(positions.Last().XPos, positions.Last().YPos - 1); break;
@@ -107,26 +116,19 @@ namespace Snake
                 }
                 else // snake is growing so we need to increase the speed
                 {
-                    int newDelay = state.SnakeDelay = state.SnakeDelay - SnakeLength();
-                    if (newDelay <= minSnakeDelay)
-                        state.SnakeDelay = minSnakeDelay;
-                    else
-                        state.SnakeDelay = newDelay;
-                    //newDelay = state.TreatDelay -= SnakeLength();
-                    //if (newDelay >= 0)
-                    //  state.TreatDelay -= newDelay;
+                    state.SnakeDelay = Math.Max(GameState.MinSnakeDelay, state.SnakeDelay - SnakeLength());
+                    state.TreatDelay = Math.Max(GameState.MinTreatDelay, state.TreatDelay - SnakeLength()*10);
+                    growSnake = false; // Wait till we hit another treat again
                 }
                 // Now move the snake head
-                console.WriteAt('*', positions.Last());
-                console.WriteAt('O', nextPos);
+                console.WriteAt(snakeBodyChar, positions.Last());
+                console.WriteAt(snakeHeadChar, nextPos);
                 positions.Add(nextPos);
-                growSnake = false; // Wait till we hit another treat again
-                console.WriteAt(" Snake Length :" + SnakeLength() + " ", 5, 0);  // TODO Add snake length update on console
-                console.WriteAt(" Snake Delay  :" + state.SnakeDelay + " ", 25, 0);
                 Thread.Sleep(state.SnakeDelay);
             } while (SnakeAlive);
-            state.GameOver = true;
+            DoPostMortem();
             RemoveSnake();
+            state.GameOver = true;
         }
     }
 }
