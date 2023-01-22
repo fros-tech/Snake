@@ -40,7 +40,7 @@ namespace Snake
             this.console = console;
             this.board = board;
             positions = new List<Position>();
-            DrawInitialSnake(console);
+            // DrawInitialSnake(console);
             this.state = state;
         }
 
@@ -56,14 +56,12 @@ namespace Snake
             positions = new List<Position>();  // Leave any previous positions to the garbage collector
         }
 
-        private void DrawInitialSnake(MyConsole c)
+        public void DrawInitialSnake(MyConsole c, int XPos, int YPos)
         {
             // populate first part of the snake
-            int MidX = c.getWidth() / 2;
-            int MidY = c.getHeight() / 2;
             for (int i = 0; i < initialSnakeLength; i++)
             {
-                positions.Add(new Position(MidX + i, MidY));
+                positions.Add(new Position(XPos + i, YPos));
             }
             for (int i = 0; i < positions.Count - 1; i++)
             {
@@ -91,8 +89,7 @@ namespace Snake
         }
 
         public void MoveSnake()
-        {  // TODO Refactor so that snake can grow with a variable number of steps, depending on the treat
-            bool growSnake;
+        {
             int linksToAdd;
 
             do

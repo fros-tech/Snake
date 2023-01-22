@@ -8,7 +8,6 @@ namespace Snake
 {
     internal class Treat
     {
-        // TODO refactor to also hold the number of points the treat gives
         private static char[] TreatChars = { '~', '$', '£' };
         private static int[] TreatPoints = { 1, 2, 3 };
         
