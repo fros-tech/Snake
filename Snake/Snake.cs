@@ -31,6 +31,7 @@ namespace Snake
         GameState state;
         MyConsole console;
         Directions dir = Directions.Right;
+        private int linksToBeAdded = 0;
         Board board;
         List<Position> positions;
         
@@ -90,8 +91,9 @@ namespace Snake
         }
 
         public void MoveSnake()
-        {
+        {  // TODO Refactor so that snake can grow with a variable number of steps, depending on the treat
             bool growSnake;
+            int linksToAdd;
 
             do
             {
@@ -103,22 +105,24 @@ namespace Snake
                     case Directions.Left:  nextPos = new Position(positions.Last().XPos - 1, positions.Last().YPos); break;
                     case Directions.Right: nextPos = new Position(positions.Last().XPos + 1, positions.Last().YPos); break;
                 }
-                growSnake = board.HasTreat(nextPos);
-                if (!growSnake && !console.isBlank(nextPos))  // Is it end of the game
-                {
+                // growSnake = board.HasTreat(nextPos);
+                linksToAdd = board.TreatPoints(nextPos);  // Did we hit a treat; get the number of snake links to add
+                if (linksToAdd == 0 && !console.isBlank(nextPos))  // // Collided with something tha was not a treat. Game over!!
+                {  
                     SnakeAlive = false;
                     break;
                 }
-                if (!growSnake) // if snake is not growing we need to remove the first entry in positions and blank the position
+                linksToBeAdded += linksToAdd;  // There may be links already to be added, so we add them up
+                if (linksToBeAdded == 0) // if snake is not growing we need to remove the first entry in positions and blank the position
                 {
                     console.WriteAt(' ', positions[0]);
                     positions.RemoveAt(0);
                 }
-                else // snake is growing so we need to increase the speed
+                else // snake is growing so we need to increase the speed, and decrease linksToBeAdded
                 {
                     state.SnakeDelay = Math.Max(GameState.MinSnakeDelay, state.SnakeDelay - SnakeLength());
                     state.TreatDelay = Math.Max(GameState.MinTreatDelay, state.TreatDelay - SnakeLength()*10);
-                    growSnake = false; // Wait till we hit another treat again
+                    linksToBeAdded--;
                 }
                 // Now move the snake head
                 console.WriteAt(snakeBodyChar, positions.Last());

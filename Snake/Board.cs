@@ -59,11 +59,12 @@ namespace Snake
                 tempPos.YPos = rand.Next(1,console.getHeight()-1);
                 placeTreat = console.isBlank(tempPos.XPos, tempPos.YPos);
                 count++;
-            } while ((count < 5) && (!placeTreat));
+            } while ((count < 5) && (!placeTreat));  // If 5 attempts where unsuccessful, give up
             if (!placeTreat)
-                return; 
-            console.WriteAt(TreatChar, tempPos);
-            Treats.Add(new Treat(tempPos, TreatChar));
+                return;
+            Treat t = Treat.GenerateTreat(tempPos);
+            console.WriteAt(t.character, t.GetPosition());
+            Treats.Add(t);
         }
 
         public void AddTreats()  // This thread method constantly adds treats to the board
@@ -83,6 +84,16 @@ namespace Snake
                     return true;
             }
             return false;
+        }
+
+        public int TreatPoints(Position position)  // Check if there is a treat at position
+        {
+            foreach(Treat t in Treats) 
+            {
+                if ((t.GetPosition().XPos == position.XPos) && (t.GetPosition().YPos == position.YPos))
+                    return t.numPoints;
+            }
+            return 0;
         }
     }
 }
