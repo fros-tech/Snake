@@ -6,10 +6,14 @@ namespace Snake
     internal class Program
     {
         // TODO Add portals in the game
+          // Will require the collision code in the snake to be rewritten
         // TODO Add multiplayer option
           // One or Two players can play the game
+          // Ideally the snake should do the ReadKy management, since the snake the can determine which keys are
+          // associated with it
         // TODO Finish retry logic
           // Should be made by starting each round with a menu of settings, and a stat screen from previous round
+        // TODO Add animation to portal when it appears, and when it disappears
 
         private int numSnakes = 2;
         MyConsole console;

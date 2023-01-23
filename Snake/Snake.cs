@@ -16,6 +16,10 @@ namespace Snake
         // These objects can be food, which cause the snake to increase
         // in length or obstacles which cause the game to end.
         // The snake will start looking like this: '******O'
+        private ConsoleKey[,] KeySet = {{ConsoleKey.W, ConsoleKey.S, ConsoleKey.A, ConsoleKey.D },
+                                        {ConsoleKey.UpArrow, ConsoleKey.DownArrow, ConsoleKey.LeftArrow, ConsoleKey.RightArrow},
+                                        {ConsoleKey.D8, ConsoleKey.D5, ConsoleKey.D4, ConsoleKey.D6}
+        };
 
         public enum Directions
         {
@@ -25,6 +29,8 @@ namespace Snake
         const char snakeHeadChar = 'O';
         const char snakeBodyChar = '*';
         bool SnakeAlive = true;
+        private int snakeID; // indicates which number snake it is. Determines initiating coordinates, and keyboardkeys
+                             // used to control the snake
         const byte initialSnakeLength = 7;
         const int minSnakeDelay = 80;
         Position? nextPos;
