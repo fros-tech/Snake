@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace Snake
 {
     internal class Board
     {
-        private const char TreatChar = '@';
         private const byte NumInitialTreats = 5;
-
         List<Treat> Treats;
         MyConsole console;
         Random rand;
@@ -60,32 +59,27 @@ namespace Snake
                 placeTreat = console.isBlank(tempPos.XPos, tempPos.YPos);
                 count++;
             } while ((count < 5) && (!placeTreat));  // If 5 attempts where unsuccessful, give up
-            if (!placeTreat)
-                return;
-            Treat t = Treat.GenerateTreat(tempPos);
+            if (!placeTreat) return;                 // didn't find a spot; fail early
+            Treat t = Treat.GenerateTreat(tempPos);  // otherwise place treat
             console.WriteAt(t.character, t.GetPosition(), t.fgColor, t.bgColor);
             Treats.Add(t);
         }
 
-        public void AddTreats()  // This thread method constantly adds treats to the board
+        public void AddTreats() // This thread method constantly adds treats to the board
         {
-            while(!state.GameOver)
+            while (!state.GameOver)
             {
                 AddTreat();
                 Thread.Sleep(state.TreatDelay);
             }
         }
 
-        public bool HasTreat(Position position)  // Check if there is a treat at position
+        public void RemoveTreat(Treat t)
         {
-            foreach(Treat t in Treats) 
-            {
-                if ((t.GetPosition().XPos == position.XPos) && (t.GetPosition().YPos == position.YPos))
-                    return true;
-            }
-            return false;
+            console.WriteAt(' ', t.position);
+            Treats.Remove(t);
         }
-
+        
         public int TreatPoints(Position position)  // Check if there is a treat at position
         {
             foreach(Treat t in Treats) 
