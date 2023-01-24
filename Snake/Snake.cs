@@ -28,6 +28,8 @@ namespace Snake
 
         const char snakeHeadChar = 'O';
         const char snakeBodyChar = '*';
+        private const ConsoleColor snakeHeadfgColor = ConsoleColor.Red;
+        private const ConsoleColor snakeBodyfgColor = ConsoleColor.Magenta;
         bool SnakeAlive = true;
         private int snakeID; // indicates which number snake it is. Determines initiating coordinates, and keyboardkeys
                              // used to control the snake
@@ -71,9 +73,9 @@ namespace Snake
             }
             for (int i = 0; i < positions.Count - 1; i++)
             {
-                c.WriteAt(snakeBodyChar, positions[i]);
+                c.WriteAt(snakeBodyChar, positions[i], snakeBodyfgColor, ConsoleColor.Black);
             }
-            c.WriteAt(snakeHeadChar, positions.Last());
+            c.WriteAt(snakeHeadChar, positions.Last(), snakeHeadfgColor, ConsoleColor.Black);
         }
 
         public void SetDirection(Directions dir)
@@ -128,8 +130,8 @@ namespace Snake
                     linksToBeAdded--;
                 }
                 // Now move the snake head
-                console.WriteAt(snakeBodyChar, positions.Last());
-                console.WriteAt(snakeHeadChar, nextPos);
+                console.WriteAt(snakeBodyChar, positions.Last(), snakeBodyfgColor, ConsoleColor.Black);
+                console.WriteAt(snakeHeadChar, nextPos, snakeHeadfgColor, ConsoleColor.Black);
                 positions.Add(nextPos);
                 Thread.Sleep(state.SnakeDelay);
             } while (SnakeAlive);

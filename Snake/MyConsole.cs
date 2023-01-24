@@ -15,8 +15,8 @@ internal class MyConsole
     {
         if (OperatingSystem.IsWindows())
         {
-            Console.SetBufferSize(120, 30);
-            Console.SetWindowSize(120, 30);
+            Console.SetBufferSize(120, 40);
+            Console.SetWindowSize(120, 40);
         }
         ConsoleWidth = Console.WindowWidth;
         ConsoleHeight = Console.WindowHeight;
@@ -47,26 +47,43 @@ internal class MyConsole
         return isBlank(p.XPos, p.YPos);
     }
 
-    private void WriteAt(string s, Position aPos)
+    private void WriteAt(string s, Position aPos, ConsoleColor fgc, ConsoleColor bgc)
     {
+        ConsoleColor oldFgc, oldBgc;
         lock (_lockWriting)                                // Only one thread at a time here
         {
+            oldFgc = Console.ForegroundColor;
+            oldBgc = Console.BackgroundColor;
+            Console.ForegroundColor = fgc;
+            Console.BackgroundColor = bgc;
             Console.CursorLeft = aPos.XPos;
             Console.CursorTop = aPos.YPos;
             Console.Write(s);                              // This is where things are put on the console
             _screenCopy![aPos.XPos, aPos.YPos] = s[0];
+            Console.ForegroundColor = oldFgc;
+            Console.BackgroundColor = oldBgc;
         }
     }
 
     public void WriteAt(string s, int x, int y)
     {
         Position p = new Position(x, y);
-        WriteAt(s, p);
+        WriteAt(s, p, Console.ForegroundColor, Console.BackgroundColor);
+    }
+    public void WriteAt(string s, int x, int y, ConsoleColor fgc, ConsoleColor bgc)
+    {
+        Position p = new Position(x, y);
+        WriteAt(s, p, fgc, bgc);
     }
 
     public void WriteAt(char c, Position aPos)
     {
-        WriteAt(c.ToString(), aPos);
+        WriteAt(c.ToString(), aPos, Console.ForegroundColor, Console.BackgroundColor);
+    }
+
+    public void WriteAt(char c, Position aPos, ConsoleColor fgc, ConsoleColor bgc)
+    {
+        WriteAt(c.ToString(), aPos, fgc, bgc);
     }
 
     public void CloseConsole()

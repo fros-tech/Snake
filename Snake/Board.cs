@@ -63,7 +63,7 @@ namespace Snake
             if (!placeTreat)
                 return;
             Treat t = Treat.GenerateTreat(tempPos);
-            console.WriteAt(t.character, t.GetPosition());
+            console.WriteAt(t.character, t.GetPosition(), t.fgColor, t.bgColor);
             Treats.Add(t);
         }
 
