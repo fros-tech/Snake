@@ -15,8 +15,8 @@ internal class MyConsole
     {
         if (OperatingSystem.IsWindows())
         {
-            Console.SetBufferSize(120, 40);
-            Console.SetWindowSize(120, 40);
+            Console.SetBufferSize(120, 50);
+            Console.SetWindowSize(120, 50);
         }
         ConsoleWidth = Console.WindowWidth;
         ConsoleHeight = Console.WindowHeight;

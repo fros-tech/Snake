@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,22 +17,20 @@ namespace Snake
         // These objects can be food, which cause the snake to increase
         // in length or obstacles which cause the game to end.
         // The snake will start looking like this: '******O'
-        private ConsoleKey[,] KeySet = {{ConsoleKey.W, ConsoleKey.S, ConsoleKey.A, ConsoleKey.D },
-                                        {ConsoleKey.UpArrow, ConsoleKey.DownArrow, ConsoleKey.LeftArrow, ConsoleKey.RightArrow},
-                                        {ConsoleKey.D8, ConsoleKey.D5, ConsoleKey.D4, ConsoleKey.D6}
+        private static ConsoleKey[,] KeySet = {{ConsoleKey.W,       ConsoleKey.S,         ConsoleKey.A,         ConsoleKey.D },
+                                               {ConsoleKey.UpArrow, ConsoleKey.DownArrow, ConsoleKey.LeftArrow, ConsoleKey.RightArrow},
+                                               {ConsoleKey.NumPad8, ConsoleKey.NumPad5,   ConsoleKey.NumPad4,   ConsoleKey.NumPad6}
         };
 
-        public enum Directions
-        {
-            Left = 0, Right = 1, Up = 2, Down = 3
-        }
+        public enum Directions { Left = 0, Right = 1, Up = 2, Down = 3 }
 
         const char snakeHeadChar = 'O';
         const char snakeBodyChar = '*';
         private const ConsoleColor snakeHeadfgColor = ConsoleColor.Red;
         private const ConsoleColor snakeBodyfgColor = ConsoleColor.Magenta;
+        private ConsoleKey[] snakesKeys;
         bool SnakeAlive = true;
-        private int snakeID; // indicates which number snake it is. Determines initiating coordinates, and keyboardkeys
+        private int snakeID; // indicates which number snake it is. Determines initiating coordinates, and keyboard keys
                              // used to control the snake
         const byte initialSnakeLength = 7;
         const int minSnakeDelay = 80;
@@ -43,13 +42,14 @@ namespace Snake
         Board board;
         List<Position> positions;
         
-        public Snake(MyConsole console, Board board, GameState state)
+        public Snake(MyConsole console, Board board, GameState state, int snakeID)
         {
             this.console = console;
             this.board = board;
             positions = new List<Position>();
             // DrawInitialSnake(console);
             this.state = state;
+            this.snakeID = snakeID;
         }
 
         public void killSnake()
@@ -64,23 +64,58 @@ namespace Snake
             positions = new List<Position>();  // Leave any previous positions to the garbage collector
         }
 
-        public void DrawInitialSnake(MyConsole c, int XPos, int YPos)
+        public void DrawInitialSnake() 
         {
-            // populate first part of the snake
-            for (int i = 0; i < initialSnakeLength; i++)
+            // Needs to do some finagling and fiddling to place more snakes on the board
+            // Places snakes relative to each corner and with a direction towards the middle of the board
+            // to give the player a chance to adjust before the snake slams into the border or
+            // another snake. Apologies for code that may offend the eye.
+            int initXPos, initYPos;
+            switch (snakeID)
             {
-                positions.Add(new Position(XPos + i, YPos));
+                case 0:    // Starts in upper left corner
+                {
+                    initXPos = 5;
+                    initYPos = 5;
+                    dir = Directions.Right;
+                    for (int i = 0; i < initialSnakeLength; i++) { positions.Add(new Position(initXPos + i, initYPos)); }
+                    break;
+                }
+                case 1:    // Starts in upper right corner
+                {
+                    initXPos = console.getWidth()-initialSnakeLength-5;
+                    initYPos = 5;
+                    dir = Directions.Left;
+                    for (int i = 0; i < initialSnakeLength; i++) { positions.Add(new Position(initXPos - i, initYPos)); }
+                    break;
+                }
+                case 2:    // Starts in lower right corner
+                {
+                    initXPos = console.getWidth()-initialSnakeLength-5;
+                    initYPos = console.getHeight()-5;
+                    dir = Directions.Left;
+                    for (int i = 0; i < initialSnakeLength; i++) { positions.Add(new Position(initXPos - i, initYPos)); }
+                    break;
+                }
             }
             for (int i = 0; i < positions.Count - 1; i++)
             {
-                c.WriteAt(snakeBodyChar, positions[i], snakeBodyfgColor, ConsoleColor.Black);
+                console.WriteAt(snakeBodyChar, positions[i], snakeBodyfgColor, ConsoleColor.Black);
             }
-            c.WriteAt(snakeHeadChar, positions.Last(), snakeHeadfgColor, ConsoleColor.Black);
+            console.WriteAt(snakeHeadChar, positions.Last(), snakeHeadfgColor, ConsoleColor.Black);
         }
 
         public void SetDirection(Directions dir)
         {
             this.dir = dir;
+        }
+
+        public void SetDirection(ConsoleKey key)
+        {  // Set direction according to snakeID and the ConsoleKey
+            if (key == KeySet[snakeID, 0]) { this.dir = Directions.Up;  return; }  // No need to do more checks
+            if (key == KeySet[snakeID, 1]) { this.dir = Directions.Down; return; }
+            if (key == KeySet[snakeID, 2]) { this.dir = Directions.Left;    return; }
+            if (key == KeySet[snakeID, 3]) { this.dir = Directions.Right; }
         }
 
         public int SnakeLength()
