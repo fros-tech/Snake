@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using System.Globalization;
-
+﻿
 namespace Snake
 {
     internal class Program
@@ -12,18 +10,18 @@ namespace Snake
         // TODO Add animation to portals and treats when they appear
         // TODO add lifetime for treats, so that they disappear after a given time (with animation)
 
-        private int numSnakes = 2;  // Initial expected number of snakes
+        private int _numSnakes = 2;  // Initial expected number of snakes
         MyConsole console;
         Board board;
-        private List<Snake> Snakes = new List<Snake>();
-        private List<Thread> snakeThreads = new List<Thread>();
+        private List<Snake> _snakes = new List<Snake>();
+        private List<Thread> _snakeThreads = new List<Thread>();
         
         GameState state;
         Thread boardThread;
         private void EndGame()
         {
-            foreach (Snake s in Snakes)
-                s.killSnake();
+            foreach (Snake s in _snakes)
+                s.KillSnake();
             console.CloseConsole();
             console.WriteAt("* GAME OVER *", 10, 10);
             console.WriteAt("* Total Snake Length :" + state.TotalSnakeLength, 10, 11);
@@ -46,36 +44,36 @@ namespace Snake
             console.WriteAt(" Treat Delay  :" + state.TreatDelay + " ", 50, 0);
         }
 
-        private void go()
+        private void Go()
         {
             console = new MyConsole();
             console.InitializeConsole();
             state = new GameState();
             board = new Board(console, state);        // Creates a new board, and sets it up with a number of treats
             boardThread = new Thread(board.AddTreats);
-            for (int i = 0; i < numSnakes; i++)
+            for (int i = 0; i < _numSnakes; i++)
             {
                 Snake s = new Snake(console, board, state, i);
                 Thread t = new Thread(s.MoveSnake);
                 s.DrawInitialSnake();  // snake itself knows where to draw initially
-                Snakes.Add(s);
-                snakeThreads.Add(t);
+                _snakes.Add(s);
+                _snakeThreads.Add(t);
             }
             do
             {
-                foreach (Snake s in Snakes) { s.DrawInitialSnake(); } // snake itself knows where to draw initially
-                foreach (Thread t in snakeThreads) { t.Start();}
+                foreach (Snake s in _snakes) { s.DrawInitialSnake(); } // snake itself knows where to draw initially
+                foreach (Thread t in _snakeThreads) { t.Start();}
                 boardThread.Start();
                 do
                 {
                     if (Console.KeyAvailable)
                     {
                         ConsoleKey keyPressed = Console.ReadKey(true).Key;
-                        foreach(Snake s in Snakes)
+                        foreach(Snake s in _snakes)
                             s.SetDirection(keyPressed);
                         switch (keyPressed)     // true causes the console NOT to echo the key pressed onto the console
                         {
-                            case ConsoleKey.Q:          { state.GameOver = true; state.CauseOfDeath = "aborted by user!"; foreach(Snake s in Snakes) s.killSnake(); break; }
+                            case ConsoleKey.Q:          { state.GameOver = true; state.CauseOfDeath = "aborted by user!"; foreach(Snake s in _snakes) s.KillSnake(); break; }
                             case ConsoleKey.Spacebar:   { break; } // PauseGame
                             case ConsoleKey.R:          { break; } // ??
                         }
@@ -86,13 +84,13 @@ namespace Snake
                 EndGame();  // TODO add possibility to have another go, or exit the program
                 state.EndProgram = GoAgain();
             } while (!state.EndProgram);
-            foreach(Thread t in snakeThreads) t.Join();
+            foreach(Thread t in _snakeThreads) t.Join();
             boardThread.Join();
         }
 
         public static void Main(string[] args) 
         {
-            new Program().go(); 
+            new Program().Go(); 
         }
     }
 }

@@ -1,42 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace Snake
 {
     internal class Treat
     {
         // TODO Let treats have a lifetime, after which they disappear again
-        private static char[] TreatChars = { '~', '$', '£' };
-        private static int[] TreatPoints = { 1, 2, 3 };
-        private static ConsoleColor[] fgColors = { ConsoleColor.White, ConsoleColor.Yellow, ConsoleColor.Blue };
-        private static ConsoleColor[] bgColors = { ConsoleColor.Black, ConsoleColor.Black, ConsoleColor.Black };
+        private static readonly char[] TreatChars = { '~', '$', '£' };
+        private static readonly int[] TreatPoints = { 1, 2, 3 };
+        private static readonly ConsoleColor[] FgColors = { ConsoleColor.White, ConsoleColor.Yellow, ConsoleColor.Blue };
+        private static readonly ConsoleColor[] BgColors = { ConsoleColor.Black, ConsoleColor.Black, ConsoleColor.Black };
 
-        public Position position { get; set; }
-        public int numPoints { get; set; } = 0;
-        public char character { get; set; }
-        public ConsoleColor fgColor { get; set; }
-        public ConsoleColor bgColor { get; set; }
+        public Position Position { get; set; }
+        public int NumPoints { get; set; }
+        public char Character { get; set; }
+        public ConsoleColor FgColor { get; set; }
+        public ConsoleColor BgColor { get; set; }
 
         private Treat(Position position, char character, int numPoints, ConsoleColor fgc, ConsoleColor bgc)
         {
-            this.position = position;
-            this.character = character;
-            this.numPoints = numPoints;
-            fgColor = fgc;
-            bgColor = bgc;
+            Position = position;
+            this.Character = character;
+            this.NumPoints = numPoints;
+            FgColor = fgc;
+            BgColor = bgc;
         }
 
         public static Treat GenerateTreat(Position p)
         {
             Random rand = new Random();
-            int TreatType = rand.Next(0, TreatChars.Length);
-            return new Treat(p, TreatChars[TreatType], TreatPoints[TreatType], fgColors[TreatType], bgColors[TreatType]);
+            int treatType = rand.Next(0, TreatChars.Length);
+            return new Treat(p, TreatChars[treatType], TreatPoints[treatType], FgColors[treatType], BgColors[treatType]);
         }
 
-        public Position GetPosition() { return position; }
+        public Position GetPosition() { return Position; }
         
     }
 }

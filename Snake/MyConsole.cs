@@ -6,8 +6,8 @@ internal class MyConsole
 {
     public const char Space = ' ';
     public const char Asterisk = '*'; 
-    private static int ConsoleHeight;
-    private static int ConsoleWidth;
+    private static int _consoleHeight;
+    private static int _consoleWidth;
     private object _lockWriting = new();       // locking object for when char or string is written to the console
     private char[,]? _screenCopy;              // We save a copy of the consoles chars, so that we can see if an asterisk is already there
     
@@ -18,21 +18,21 @@ internal class MyConsole
             Console.SetBufferSize(120, 50);
             Console.SetWindowSize(120, 50);
         }
-        ConsoleWidth = Console.WindowWidth;
-        ConsoleHeight = Console.WindowHeight;
-        _screenCopy = new char[ConsoleWidth, ConsoleHeight];
+        _consoleWidth = Console.WindowWidth;
+        _consoleHeight = Console.WindowHeight;
+        _screenCopy = new char[_consoleWidth, _consoleHeight];
         Console.Clear();
         Console.CursorVisible = false;
-        for (var x = 0; x < ConsoleWidth; x++)
-          for (var y = 0; y < ConsoleHeight; y++)
+        for (var x = 0; x < _consoleWidth; x++)
+          for (var y = 0; y < _consoleHeight; y++)
             _screenCopy[x, y] = Space;
     }
 
-    public int getWidth() { return ConsoleWidth; }
+    public int GetWidth() { return _consoleWidth; }
 
-    public int getHeight() { return ConsoleHeight; }
+    public int GetHeight() { return _consoleHeight; }
 
-    public bool isBlank(int x, int y)
+    public bool IsBlank(int x, int y)
     {
         return (_screenCopy[x, y] == Space);
     }
@@ -42,9 +42,9 @@ internal class MyConsole
         return _screenCopy[p.XPos, p.YPos];
     }
 
-    public bool isBlank(Position p)
+    public bool IsBlank(Position p)
     {
-        return isBlank(p.XPos, p.YPos);
+        return IsBlank(p.XPos, p.YPos);
     }
 
     private void WriteAt(string s, Position aPos, ConsoleColor fgc, ConsoleColor bgc)
