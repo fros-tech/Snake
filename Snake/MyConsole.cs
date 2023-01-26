@@ -1,14 +1,14 @@
-﻿
+﻿using System;
 namespace Snake;
 
 
 internal class MyConsole
 {
-    public const char Space = ' ';
-    public const char Asterisk = '*'; 
+    private const char Space = ' ';
+    private const char Asterisk = '*'; 
     private static int _consoleHeight;
     private static int _consoleWidth;
-    private object _lockWriting = new();       // locking object for when char or string is written to the console
+    private readonly object _lockWriting = new();       // locking object for when char or string is written to the console
     private char[,]? _screenCopy;              // We save a copy of the consoles chars, so that we can see if an asterisk is already there
     
     public void InitializeConsole()
@@ -49,11 +49,10 @@ internal class MyConsole
 
     private void WriteAt(string s, Position aPos, ConsoleColor fgc, ConsoleColor bgc)
     {
-        ConsoleColor oldFgc, oldBgc;
         lock (_lockWriting)                                // Only one thread at a time here
         {
-            oldFgc = Console.ForegroundColor;
-            oldBgc = Console.BackgroundColor;
+            ConsoleColor oldFgc = Console.ForegroundColor;
+            ConsoleColor oldBgc = Console.BackgroundColor;
             Console.ForegroundColor = fgc;
             Console.BackgroundColor = bgc;
             Console.CursorLeft = aPos.XPos;

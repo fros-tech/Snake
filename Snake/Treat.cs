@@ -14,6 +14,7 @@ namespace Snake
         public char Character { get; set; }
         public ConsoleColor FgColor { get; set; }
         public ConsoleColor BgColor { get; set; }
+        public long lifeTime { get; set; } // milliseconds
 
         private Treat(Position position, char character, int numPoints, ConsoleColor fgc, ConsoleColor bgc)
         {
@@ -22,6 +23,7 @@ namespace Snake
             this.NumPoints = numPoints;
             FgColor = fgc;
             BgColor = bgc;
+            lifeTime = 0;
         }
 
         public static Treat GenerateTreat(Position p)

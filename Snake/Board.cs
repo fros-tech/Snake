@@ -79,7 +79,12 @@
             while (!_state.GameOver)
             {
                 AddTreat();
-                Thread.Sleep(_state.TreatDelay);
+                foreach (Treat t in _treats)
+                {
+                    t.lifeTime += _state.TreatDelay;
+                    if(t.lifeTime > _state.maxTreatLifetime)
+                        RemoveTreat(t);
+                }                Thread.Sleep(_state.TreatDelay);
             }
         }
 
