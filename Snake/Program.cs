@@ -10,7 +10,7 @@ namespace Snake
         // TODO Add animation to portals and treats when they appear
         // TODO add lifetime for treats, so that they disappear after a given time (with animation)
 
-        private int _numSnakes = 2;  // Initial expected number of snakes
+        private int _numSnakes = 1;  // Initial expected number of snakes
         MyConsole console;
         Board board;
         private List<Snake> _snakes = new List<Snake>();
