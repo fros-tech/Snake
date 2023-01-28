@@ -4,7 +4,7 @@
     {
         public const int MinSnakeDelay = 80;
         public const int MinTreatDelay = 1500;
-        public long maxTreatLifetime { get; set; } = 8000;
+        public long maxTreatLifetime { get; set; } = 12000;
         public int NumPoints { get; set; } = 0;
         public bool GameOver { get; set; }
         public bool GamePaused { get; set; }

@@ -8,6 +8,9 @@
         private readonly Random _rand;
         private readonly GameState _state;
         private readonly object _treatLock = new();
+        private Thread _thread;
+
+        private bool _treatsActivated;
         // private bool _paused;
 
         public Board(MyConsole console, GameState state)
@@ -16,6 +19,8 @@
             _treats = new List<Treat>();
             _rand = new Random();
             _state = state;
+            _thread = new Thread(AddTreats);
+            _thread.Start();
         }
 
         public void SetupBoard()
@@ -35,9 +40,19 @@
                 _console.WriteAt("|", _console.GetWidth() - 1, b);
             }
             for (byte b = 0; b < NumInitialTreats; b++)
-                AddTreat();
+              AddTreat();
         }
 
+        public void ActivateTreats()
+        {
+            _treatsActivated = true;
+        }
+
+        public void DeActivateTreats()
+        {
+            _treatsActivated = false;
+        }
+        
         private bool FindBlankSpot(out Position pos, int margin)
         {
             // make up to 5 attempts at blank spot on the Board
@@ -82,7 +97,7 @@
         {
             while (!_state.GameOver)
             {
-                if (!_state.GamePaused)
+                if (!_state.GamePaused && _treatsActivated)
                 {
                     AddTreat();
                     for (int i = 0; i < _treats.Count; i++)
@@ -91,11 +106,8 @@
                         _treats[i].lifeTime += _state.TreatDelay;
                         if (_treats[i].lifeTime > _state.maxTreatLifetime)
                         {
-                            lock (_treatLock)
-                            {
-                                _treats.RemoveAt(i);
-                                _console.WriteAt(' ', _treats[i].Position);
-                            }
+                            _console.WriteAt(' ', _treats[i].Position);
+                            _treats.RemoveAt(i);
                         }
                     }
                 }

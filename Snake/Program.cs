@@ -10,7 +10,7 @@ namespace Snake
         // TODO Add animation to portals and treats when they appear
         // TODO add lifetime for treats, so that they disappear after a given time (with animation)
 
-        private int _numSnakes = 1;  // Initial expected number of snakes
+        private int _numSnakes = 2;  // Initial expected number of snakes
         MyConsole console;
         Board board;
         private List<Snake> _snakes = new List<Snake>();
@@ -44,45 +44,57 @@ namespace Snake
             console.WriteAt(" Treat Delay  :" + state.TreatDelay + " ", 50, 0);
         }
 
-        private void Go()
+        public void SetupGame()
         {
             console = new MyConsole();
             state = new GameState();
             board = new Board(console, state);          // Create a new board and a thread to add treats
             boardThread = new Thread(board.AddTreats);
+            console.InitializeConsole();
             for (int i = 0; i < _numSnakes; i++)        // Create the snakes and threads to move them
             {
                 Snake s = new Snake(console, board, state, i);
                 _snakes.Add(s);
             }
-            console.InitializeConsole();
-            do
+            boardThread.Start();
+        }
+
+        private void ResetGame()
+        {
+            state.Reset();
+            console.ClearConsole();
+            board.SetupBoard();
+            foreach (Snake s in _snakes) { s.DrawInitialSnake(); s.Activate();} // snake itself knows where to draw initially
+            board.ActivateTreats();
+        }
+
+        private void Go()
+        {
+            SetupGame();
+            do                                          // As long as user(s) wants to have a try
             {
-                state.Reset();
-                console.ClearConsole();
-                board.SetupBoard();
-                boardThread.Start();
-                foreach (Snake s in _snakes) { s.DrawInitialSnake();} // snake itself knows where to draw initially
-                state.GamePaused = false;
-                do
+                ResetGame();
+                do                                      // Run a snake game
                 {
                     if (Console.KeyAvailable)
                     {
                         ConsoleKey keyPressed = Console.ReadKey(true).Key;
                         foreach(Snake s in _snakes)
                             s.SetDirection(keyPressed);
-                        switch (keyPressed)     // true causes the console NOT to echo the key pressed onto the console
+                        switch (keyPressed)             // true causes the console NOT to echo the key pressed onto the console
                         {
                             case ConsoleKey.Q:          { state.GameOver = true; state.CauseOfDeath = "aborted by user!"; foreach(Snake s in _snakes) s.KillSnake(); break; }
                             case ConsoleKey.Spacebar:   { state.TogglePaused(); break; } // PauseGame
                             case ConsoleKey.R:          { break; } // ??
                         }
                     }
-                    GameStatus();
+                    GameStatus();                       // Update gamestats on the console
                     Thread.Sleep(50);
                 } while (!state.GameOver);
-                EndGame();  // TODO add possibility to have another go, or exit the program
-                state.EndProgram = !GoAgain();
+                EndGame();                              // Show final gamestats
+                state.EndProgram = !GoAgain();          // Check if we are going to have another try at it
+                board.DeActivateTreats();
+                foreach(Snake s in _snakes) s.DeActivate();
             } while (!state.EndProgram);
             foreach(Snake s in _snakes) s.KillSnake();
             boardThread.Join();

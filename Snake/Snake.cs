@@ -33,7 +33,7 @@
         private int _linksToBeAdded;
         Board _board;
         private Thread _thread;
-        // private bool _paused = false;
+        private bool _snakeActivated;
         List<Position> _positions;
         
         public Snake(MyConsole console, Board board, GameState state, int snakeId)
@@ -54,10 +54,15 @@
             _thread.Join();  // Join to main Thread; We are leaving
         }
 
-//        public void SetPaused()
-//        {
-//            _paused = true;
-//        }
+        public void Activate()
+        {
+            _snakeActivated = true;
+        }
+
+        public void DeActivate()
+        {
+            _snakeActivated = false;
+        }
 
         private void RemoveSnake()
         {
@@ -136,7 +141,7 @@
 
             do
             {
-                if (!_state.GamePaused)
+                if (!_state.GamePaused && _snakeActivated)
                 {
                     //  Find next coordinate for the head, based on the direction
                     switch (_dir)
@@ -158,8 +163,7 @@
                     // growSnake = board.HasTreat(nextPos);
                     linksToAdd =
                         _board.TreatPoints(_nextPos); // Did we hit a treat; get the number of snake links to add
-                    if (linksToAdd == 0 &&
-                        !_console.IsBlank(_nextPos)) // // Collided with something tha was not a treat. Game over!!
+                    if (linksToAdd == 0 && !_console.IsBlank(_nextPos)) // Collided with something tha was not a treat. Game over!!
                     {
                         _snakeAlive = false;
                         break;
