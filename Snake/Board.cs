@@ -7,17 +7,18 @@
         private readonly MyConsole _console;
         private readonly Random _rand;
         private readonly GameState _state;
+        private readonly object _treatLock = new();
+        // private bool _paused;
 
         public Board(MyConsole console, GameState state)
         {
-            this._console = console;
+            _console = console;
             _treats = new List<Treat>();
             _rand = new Random();
-            this._state = state;
-            SetupBoard();
+            _state = state;
         }
 
-        private void SetupBoard()
+        public void SetupBoard()
         {   // Draws the box on the outer edge of the board, and adds initial treats
             _console.WriteAt("+", 0, 0);
             _console.WriteAt("+", 0, _console.GetHeight() - 1);
@@ -68,9 +69,12 @@
             Position tempPos;
             if (FindBlankSpot(out tempPos, 1))    // Let's see if we can find a blank spot to place a treat
             {
-                Treat t = Treat.GenerateTreat(tempPos);
-                _console.WriteAt(t.Character, t.GetPosition(), t.FgColor, t.BgColor);
-                _treats.Add(t);
+                lock (_treatLock)
+                {
+                    Treat t = Treat.GenerateTreat(tempPos);
+                    _console.WriteAt(t.Character, t.GetPosition(), t.FgColor, t.BgColor);
+                    _treats.Add(t);
+                }
             }
         }
 
@@ -78,20 +82,25 @@
         {
             while (!_state.GameOver)
             {
-                AddTreat();
-                foreach (Treat t in _treats)
+                if (!_state.GamePaused)
                 {
-                    t.lifeTime += _state.TreatDelay;
-                    if(t.lifeTime > _state.maxTreatLifetime)
-                        RemoveTreat(t);
-                }                Thread.Sleep(_state.TreatDelay);
+                    AddTreat();
+                    for (int i = 0; i < _treats.Count; i++)
+                    {
+                        // Tempting to use foreach, but will cause collection modified exception
+                        _treats[i].lifeTime += _state.TreatDelay;
+                        if (_treats[i].lifeTime > _state.maxTreatLifetime)
+                        {
+                            lock (_treatLock)
+                            {
+                                _treats.RemoveAt(i);
+                                _console.WriteAt(' ', _treats[i].Position);
+                            }
+                        }
+                    }
+                }
+                Thread.Sleep(_state.TreatDelay);
             }
-        }
-
-        public void RemoveTreat(Treat t)
-        {
-            _console.WriteAt(' ', t.Position);
-            _treats.Remove(t);
         }
         
         public int TreatPoints(Position position)  // Check if there is a treat at position

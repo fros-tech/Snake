@@ -32,6 +32,11 @@ internal class MyConsole
 
     public int GetHeight() { return _consoleHeight; }
 
+    public void ClearConsole()
+    {
+        Console.Clear();
+    }
+
     public bool IsBlank(int x, int y)
     {
         return (_screenCopy[x, y] == Space);

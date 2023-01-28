@@ -14,7 +14,7 @@ namespace Snake
         MyConsole console;
         Board board;
         private List<Snake> _snakes = new List<Snake>();
-        private List<Thread> _snakeThreads = new List<Thread>();
+        // private List<Thread> _snakeThreads = new List<Thread>();  // Are now handled in the snake
         
         GameState state;
         Thread boardThread;
@@ -47,23 +47,23 @@ namespace Snake
         private void Go()
         {
             console = new MyConsole();
-            console.InitializeConsole();
             state = new GameState();
-            board = new Board(console, state);        // Creates a new board, and sets it up with a number of treats
+            board = new Board(console, state);          // Create a new board and a thread to add treats
             boardThread = new Thread(board.AddTreats);
-            for (int i = 0; i < _numSnakes; i++)
+            for (int i = 0; i < _numSnakes; i++)        // Create the snakes and threads to move them
             {
                 Snake s = new Snake(console, board, state, i);
-                Thread t = new Thread(s.MoveSnake);
-                s.DrawInitialSnake();  // snake itself knows where to draw initially
                 _snakes.Add(s);
-                _snakeThreads.Add(t);
             }
+            console.InitializeConsole();
             do
             {
-                foreach (Snake s in _snakes) { s.DrawInitialSnake(); } // snake itself knows where to draw initially
-                foreach (Thread t in _snakeThreads) { t.Start();}
+                state.Reset();
+                console.ClearConsole();
+                board.SetupBoard();
                 boardThread.Start();
+                foreach (Snake s in _snakes) { s.DrawInitialSnake();} // snake itself knows where to draw initially
+                state.GamePaused = false;
                 do
                 {
                     if (Console.KeyAvailable)
@@ -74,7 +74,7 @@ namespace Snake
                         switch (keyPressed)     // true causes the console NOT to echo the key pressed onto the console
                         {
                             case ConsoleKey.Q:          { state.GameOver = true; state.CauseOfDeath = "aborted by user!"; foreach(Snake s in _snakes) s.KillSnake(); break; }
-                            case ConsoleKey.Spacebar:   { break; } // PauseGame
+                            case ConsoleKey.Spacebar:   { state.TogglePaused(); break; } // PauseGame
                             case ConsoleKey.R:          { break; } // ??
                         }
                     }
@@ -82,9 +82,9 @@ namespace Snake
                     Thread.Sleep(50);
                 } while (!state.GameOver);
                 EndGame();  // TODO add possibility to have another go, or exit the program
-                state.EndProgram = GoAgain();
+                state.EndProgram = !GoAgain();
             } while (!state.EndProgram);
-            foreach(Thread t in _snakeThreads) t.Join();
+            foreach(Snake s in _snakes) s.KillSnake();
             boardThread.Join();
         }
 
