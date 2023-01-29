@@ -11,7 +11,6 @@
         private Thread _thread;
 
         private bool _treatsActivated;
-        // private bool _paused;
 
         public Board(MyConsole console, GameState state)
         {
@@ -44,15 +43,9 @@
               AddTreat();
         }
 
-        public void ActivateTreats()
-        {
-            _treatsActivated = true;
-        }
+        public void ActivateTreats() { _treatsActivated = true; }
 
-        public void DeActivateTreats()
-        {
-            _treatsActivated = false;
-        }
+        public void DeActivateTreats() { _treatsActivated = false; }
         
         private bool FindBlankSpot(out Position pos, int margin)
         {

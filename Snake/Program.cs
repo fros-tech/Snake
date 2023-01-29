@@ -14,13 +14,11 @@ namespace Snake
         
         private GameState state;
         private Thread boardThread;
-        private void EndGame()
+        
+        private void ShowEndGameStats()
         {
             console.WriteAt("* GAME OVER *", 10, 10);
-            for (int i=0; i < _snakes.Count; i++)
-            {
-                console.WriteAt(" Snake #"+i+ ": "+_snakes[i].SnakeLength(),10, 11+i);
-            }
+            for (int i=0; i < _snakes.Count; i++) { console.WriteAt(" Snake #"+i+ ": "+_snakes[i].SnakeLength(),10, 11+i); }
             console.WriteAt(state.CauseOfDeath, 10, 15);
             console.WriteAt("Winner is snake #: "+state.MaxSnakeLength+", Length: "+state.MaxSnakeLength, 10, 16);
         }
@@ -41,15 +39,12 @@ namespace Snake
         {
             console.WriteAt(" Snake Delay  : " + state.SnakeDelay + " ", 5, 0);
             console.WriteAt(" Treat Delay  : " + state.TreatDelay + " ", 30, 0);
-            for (int i=0; i < _snakes.Count; i++)
-            {
-                console.WriteAt(" Snake #"+i+ ": "+_snakes[i].SnakeLength()+" ",55+(i*15), 0);
-            }
+            for (int i=0; i < _snakes.Count; i++) { console.WriteAt(" Snake #"+i+ ": "+_snakes[i].SnakeLength()+" ",55+(i*15), 0); }
         }
 
         private void SetupGame()
         {
-            console = new MyConsole();
+            console = MyConsole.GetInstance();
             state = new GameState();
             board = new Board(console, state);          // Create a new board and a thread to add treats
             boardThread = new Thread(board.AddTreats);
@@ -67,10 +62,16 @@ namespace Snake
             state.Reset();
             console.ClearConsole();
             board.ResetBoard();
-            foreach (Snake s in _snakes) { s.ResetSnake(); s.Activate();} // snake itself knows where to draw initially
+            ResetSnakes();
+            ActivateSnakes();
             board.ActivateTreats();
         }
 
+        public void ResetSnakes() { foreach (Snake s in _snakes) { s.ResetSnake();} }
+        public void DeActivateSnakes() { foreach (Snake s in _snakes) { s.DeActivate();} }
+        public void ActivateSnakes() { foreach (Snake s in _snakes) { s.Activate();} }
+        public void KillSnakes() { foreach (Snake s in _snakes) { s.KillSnake();}}
+        
         private void Go()
         {
             SetupGame();
@@ -91,14 +92,14 @@ namespace Snake
                         }
                     }
                     GameStatus();                       // Update gamestats on the console
-                    Thread.Sleep(50);
+                    Thread.Sleep(50);    // Give the CPU a break
                 } while (!state.GameOver);
-                EndGame();                              // Show final gamestats
+                ShowEndGameStats();                      // Show final gamestats
                 board.DeActivateTreats();
-                foreach(Snake s in _snakes) s.DeActivate();
-                state.EndProgram = !GoAgain();          // Check if we are going to have another try at it
+                DeActivateSnakes();
+                state.EndProgram = !GoAgain();           // Check if we are going to have another try at it
             } while (!state.EndProgram);
-            foreach(Snake s in _snakes) s.KillSnake();
+            KillSnakes();
             boardThread.Join();
         }
 

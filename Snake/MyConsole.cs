@@ -1,7 +1,6 @@
 ﻿using System;
 namespace Snake;
 
-
 internal class MyConsole
 {
     private const char Space = ' ';
@@ -10,7 +9,16 @@ internal class MyConsole
     private static int _consoleWidth;
     private readonly object _lockWriting = new();       // locking object for when char or string is written to the console
     private char[,]? _screenCopy;              // We save a copy of the consoles chars, so that we can see if an asterisk is already there
+    private static MyConsole instance;
 
+    private MyConsole() {}
+
+    public static MyConsole GetInstance()
+    {
+        if (instance == null)
+            instance = new MyConsole();
+        return instance;
+    }
     public void InitializeConsole()
     {
         if (OperatingSystem.IsWindows())
@@ -28,8 +36,8 @@ internal class MyConsole
 
     private void ClearScreenCopy()
     {
-        for (var x = 0; x < _consoleWidth; x++)
-        for (var y = 0; y < _consoleHeight; y++)
+        for (int x = 0; x < _consoleWidth; x++)
+        for (int y = 0; y < _consoleHeight; y++)
             _screenCopy[x, y] = Space;
     }
 
@@ -94,10 +102,5 @@ internal class MyConsole
     public void WriteAt(char c, Position aPos, ConsoleColor fgc, ConsoleColor bgc)
     {
         WriteAt(c.ToString(), aPos, fgc, bgc);
-    }
-
-    public void CloseConsole()
-    {
-        Console.Clear();
     }
 }

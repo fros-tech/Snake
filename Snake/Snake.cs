@@ -2,6 +2,7 @@
 {
     internal class Snake
     {
+        //
         // This class contains code that draws a snake on the console.
         // It also contains a method that will let the snake move
         // according to a defined direction
@@ -9,10 +10,10 @@
         // These objects can be food, which cause the snake to increase
         // in length or obstacles which cause the game to end.
         // The snake will start looking like this: '******O'
+        //
         private static ConsoleKey[,] _keySet = {{ConsoleKey.W,       ConsoleKey.S,         ConsoleKey.A,         ConsoleKey.D },
                                                {ConsoleKey.UpArrow, ConsoleKey.DownArrow, ConsoleKey.LeftArrow, ConsoleKey.RightArrow},
-                                               {ConsoleKey.NumPad8, ConsoleKey.NumPad5,   ConsoleKey.NumPad4,   ConsoleKey.NumPad6}
-        };
+                                               {ConsoleKey.NumPad8, ConsoleKey.NumPad5,   ConsoleKey.NumPad4,   ConsoleKey.NumPad6} };
         private static readonly ConsoleColor[] _headColors = { ConsoleColor.Cyan, ConsoleColor.Yellow, ConsoleColor.Red };
         private static readonly ConsoleColor[] _bodyColors = { ConsoleColor.Magenta, ConsoleColor.Blue, ConsoleColor.Green };
 
@@ -22,16 +23,14 @@
         private const char SnakeBodyChar = '*';
         private readonly ConsoleColor _headColor;
         private readonly ConsoleColor _bodyColor;
-        // private ConsoleKey[] _snakesKeys;
-        bool _snakeAlive = true;
+        private bool _snakeAlive = true;
         private readonly int _snakeId; // indicates which number snake it is. Determines initiating coordinates, and keyboard keys
-                             // used to control the snake
+                                       // used to control the snake
         private const byte InitialSnakeLength = 7;
-        // const int MinSnakeDelay = 80;
         private Position? _nextPos;
         private readonly GameState _state;
         private readonly MyConsole _console;
-        private Directions _dir = Directions.Right;
+        private Directions _dir;
         private int _linksToBeAdded;
         private readonly Board _board;
         private readonly Thread _thread;
@@ -43,7 +42,6 @@
             _console = console;
             _board = board;
             _positions = new List<Position>();
-            // DrawInitialSnake(console);
             _state = state;
             _snakeId = snakeId;
             _headColor = _headColors[_snakeId];
@@ -52,25 +50,16 @@
             _thread.Start();
         }
 
-        public int GetID()
-        {
-            return _snakeId;
-        }
+        public int GetID() { return _snakeId; }
         public void KillSnake()
         {
             _snakeAlive = false;
             _thread.Join();  // Join to main Thread; We are leaving
         }
 
-        public void Activate()
-        {
-            _snakeActivated = true;
-        }
+        public void Activate() { _snakeActivated = true; }
 
-        public void DeActivate()
-        {
-            _snakeActivated = false;
-        }
+        public void DeActivate() { _snakeActivated = false; }
 
         public void ResetSnake() 
         {
@@ -84,24 +73,21 @@
             {
                 case 0:    // Starts in upper left corner
                 {
-                    initXPos = 5;
-                    initYPos = 5;
+                    initXPos = 5; initYPos = 5;
                     _dir = Directions.Right;
                     for (int i = 0; i < InitialSnakeLength; i++) { _positions.Add(new Position(initXPos + i, initYPos)); }
                     break;
                 }
                 case 1:    // Starts in upper right corner
                 {
-                    initXPos = _console.GetWidth()-InitialSnakeLength-5;
-                    initYPos = 5;
+                    initXPos = _console.GetWidth()-InitialSnakeLength-5; initYPos = 5;
                     _dir = Directions.Left;
                     for (int i = 0; i < InitialSnakeLength; i++) { _positions.Add(new Position(initXPos - i, initYPos)); }
                     break;
                 }
                 case 2:    // Starts in lower right corner
                 {
-                    initXPos = _console.GetWidth()-InitialSnakeLength-5;
-                    initYPos = _console.GetHeight()-5;
+                    initXPos = _console.GetWidth()-InitialSnakeLength-5; initYPos = _console.GetHeight()-5;
                     _dir = Directions.Left;
                     for (int i = 0; i < InitialSnakeLength; i++) { _positions.Add(new Position(initXPos - i, initYPos)); }
                     break;
@@ -112,7 +98,6 @@
                 _console.WriteAt(SnakeBodyChar, _positions[i], _bodyColor, ConsoleColor.Black);
             }
             _console.WriteAt(SnakeHeadChar, _positions.Last(), _headColor, ConsoleColor.Black);
-            //_snakeAlive = true;
         }
 
         public void SetDirection(ConsoleKey key)

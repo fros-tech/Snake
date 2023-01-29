@@ -3,10 +3,10 @@ namespace Snake
 {
     internal class Treat
     {
-        private static readonly char[] TreatChars = { '~', '$', '£' };
-        private static readonly int[] TreatPoints = { 1, 2, 3 };
-        private static readonly ConsoleColor[] FgColors = { ConsoleColor.White, ConsoleColor.Yellow, ConsoleColor.Blue };
-        private static readonly ConsoleColor[] BgColors = { ConsoleColor.Black, ConsoleColor.Black, ConsoleColor.Black };
+        private static readonly char[] TreatChars = { '~', '$', '£', '#' };
+        private static readonly int[] TreatPoints = { 1, 2, 3, 5 };
+        private static readonly ConsoleColor[] FgColors = { ConsoleColor.White, ConsoleColor.Yellow, ConsoleColor.Blue, ConsoleColor.Cyan };
+        private static readonly ConsoleColor[] BgColors = { ConsoleColor.Black, ConsoleColor.Black, ConsoleColor.Black, ConsoleColor.Black };
 
         public Position Position { get; set; }
         public int NumPoints { get; set; }
