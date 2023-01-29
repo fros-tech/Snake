@@ -5,25 +5,21 @@ namespace Snake
     {
         // TODO Add portals in the game
           // Will require the collision code in the snake to be rewritten
-        // TODO Finish retry logic
-          // Should be made by starting each round with a menu of settings, and a stat screen from previous round
         // TODO Add animation to portals and treats when they appear
-        // TODO Fix bug where treats are removed after they have been eaten, leaving holes in the snake
 
-        private int _numSnakes = 2;  // Initial expected number of snakes
-        MyConsole console;
-        Board board;
-        private List<Snake> _snakes = new List<Snake>();
-        // private List<Thread> _snakeThreads = new List<Thread>();  // Are now handled in the snake
+        private readonly int _numSnakes = 2;  // Initial expected number of snakes
+        private MyConsole console;
+        private Board board;
+        private readonly List<Snake> _snakes = new List<Snake>();
         
-        GameState state;
-        Thread boardThread;
+        private GameState state;
+        private Thread boardThread;
         private void EndGame()
         {
             console.WriteAt("* GAME OVER *", 10, 10);
             for (int i=0; i < _snakes.Count; i++)
             {
-                console.WriteAt(" Snake #"+i+ ": "+_snakes[i].SnakeLength(),10, 10+i);
+                console.WriteAt(" Snake #"+i+ ": "+_snakes[i].SnakeLength(),10, 11+i);
             }
             // TODO Find winner and announce
             console.WriteAt(state.CauseOfDeath, 10, 15);
@@ -52,7 +48,7 @@ namespace Snake
             }
         }
 
-        public void SetupGame()
+        private void SetupGame()
         {
             console = new MyConsole();
             state = new GameState();
@@ -91,9 +87,8 @@ namespace Snake
                             s.SetDirection(keyPressed);
                         switch (keyPressed)             // true causes the console NOT to echo the key pressed onto the console
                         {
-                            case ConsoleKey.Q:          { state.GameOver = true; state.CauseOfDeath = "aborted by user!"; foreach(Snake s in _snakes) s.KillSnake(); break; }
+                            case ConsoleKey.Q:          { state.GameOver = true; state.CauseOfDeath = "aborted by user!"; break; }
                             case ConsoleKey.Spacebar:   { state.TogglePaused(); break; } // PauseGame
-                            case ConsoleKey.R:          { break; } // ??
                         }
                     }
                     GameStatus();                       // Update gamestats on the console

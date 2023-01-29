@@ -76,6 +76,22 @@
             pos = null;
             return false;
         }
+
+        public void RemoveTreat(Position pos)
+        {
+            for (int i=0; i < _treats.Count; i++)
+            {
+                if(_treats[i].Position.XPos== pos.XPos)
+                    if (_treats[i].Position.YPos == pos.YPos)
+                    {
+                        lock (_treatLock)
+                        {
+                            _console.WriteAt(' ', _treats[i].Position);
+                            _treats.RemoveAt(i);
+                        }
+                    }
+            }
+        }
         
         private void AddTreat()
         {
