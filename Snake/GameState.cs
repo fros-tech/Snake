@@ -14,10 +14,7 @@
         public int TreatDelay { get; set; } = 3000;
         public string CauseOfDeath { get; set; } = "";
 
-        public void TogglePaused()
-        {
-            GamePaused = !GamePaused;
-        }
+        public void TogglePaused() { GamePaused = !GamePaused; }
 
         public void Reset()
         {
