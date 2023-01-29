@@ -48,6 +48,10 @@
             _thread.Start();
         }
 
+        public int GetID()
+        {
+            return _snakeId;
+        }
         public void KillSnake()
         {
             _snakeAlive = false;
@@ -160,12 +164,12 @@
                             break;
                     }
 
-                    // growSnake = board.HasTreat(nextPos);
                     linksToAdd =
                         _board.TreatPoints(_nextPos); // Did we hit a treat; get the number of snake links to add
                     if (linksToAdd == 0 && !_console.IsBlank(_nextPos)) // Collided with something tha was not a treat. Game over!!
                     {
-                        _snakeAlive = false;
+                        //_snakeAlive = false;
+                        _state.GameOver = true;
                         break;
                     }
 
@@ -187,11 +191,15 @@
                     _console.WriteAt(SnakeBodyChar, _positions.Last(), SnakeBodyfgColor, ConsoleColor.Black);
                     _console.WriteAt(SnakeHeadChar, _nextPos, SnakeHeadfgColor, ConsoleColor.Black);
                     _positions.Add(_nextPos);
+                    if (_positions.Count > _state.MaxSnakeLength)
+                    {
+                        _state.MaxSnakeLength = _positions.Count;
+                        _state.LongestSnake = _snakeId;
+                    }
                 }
                 Thread.Sleep(_state.SnakeDelay);
-            } while (_snakeAlive);
+            } while (!_state.EndProgram);
             DoPostMortem();
-            RemoveSnake();
             _state.GameOver = true;
         }
     }

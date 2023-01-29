@@ -95,19 +95,21 @@
 
         public void AddTreats() // This thread method constantly adds treats to the board
         {
-            while (!_state.GameOver)
+            while (!_state.EndProgram)
             {
                 if (!_state.GamePaused && _treatsActivated)
                 {
                     AddTreat();
                     for (int i = 0; i < _treats.Count; i++)
-                    {
-                        // Tempting to use foreach, but will cause collection modified exception
+                    {   // Tempting to use foreach, but will cause collection modified exception
                         _treats[i].lifeTime += _state.TreatDelay;
                         if (_treats[i].lifeTime > _state.maxTreatLifetime)
                         {
-                            _console.WriteAt(' ', _treats[i].Position);
-                            _treats.RemoveAt(i);
+                            lock (_treatLock)
+                            {
+                                _console.WriteAt(' ', _treats[i].Position);
+                                _treats.RemoveAt(i);
+                            }
                         }
                     }
                 }

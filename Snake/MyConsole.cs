@@ -10,7 +10,7 @@ internal class MyConsole
     private static int _consoleWidth;
     private readonly object _lockWriting = new();       // locking object for when char or string is written to the console
     private char[,]? _screenCopy;              // We save a copy of the consoles chars, so that we can see if an asterisk is already there
-    
+
     public void InitializeConsole()
     {
         if (OperatingSystem.IsWindows())
@@ -23,8 +23,13 @@ internal class MyConsole
         _screenCopy = new char[_consoleWidth, _consoleHeight];
         Console.Clear();
         Console.CursorVisible = false;
+        ClearScreenCopy();
+    }
+
+    private void ClearScreenCopy()
+    {
         for (var x = 0; x < _consoleWidth; x++)
-          for (var y = 0; y < _consoleHeight; y++)
+        for (var y = 0; y < _consoleHeight; y++)
             _screenCopy[x, y] = Space;
     }
 
@@ -35,6 +40,7 @@ internal class MyConsole
     public void ClearConsole()
     {
         Console.Clear();
+        ClearScreenCopy();
     }
 
     public bool IsBlank(int x, int y)
