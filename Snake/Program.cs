@@ -8,7 +8,7 @@ namespace Snake
         // TODO Finish retry logic
           // Should be made by starting each round with a menu of settings, and a stat screen from previous round
         // TODO Add animation to portals and treats when they appear
-        // TODO add lifetime for treats, so that they disappear after a given time (with animation)
+        // TODO Fix bug where treats are removed after they have been eaten, leaving holes in the snake
 
         private int _numSnakes = 2;  // Initial expected number of snakes
         MyConsole console;
@@ -20,9 +20,6 @@ namespace Snake
         Thread boardThread;
         private void EndGame()
         {
-            //foreach (Snake s in _snakes)
-            //    s.KillSnake();
-            //console.CloseConsole();
             console.WriteAt("* GAME OVER *", 10, 10);
             for (int i=0; i < _snakes.Count; i++)
             {
@@ -33,9 +30,9 @@ namespace Snake
             console.WriteAt("Winner is snake #: "+state.MaxSnakeLength+", Length: "+state.MaxSnakeLength, 10, 16);
         }
 
-        public bool GoAgain()
+        private bool GoAgain()
         {
-            console.WriteAt("Skal du prøve igen? J/N :", 10, 14);
+            console.WriteAt("Want another try ? J/N :", 10, 14);
             ConsoleKeyInfo k;
             do
             {
@@ -51,7 +48,7 @@ namespace Snake
             console.WriteAt(" Treat Delay  : " + state.TreatDelay + " ", 30, 0);
             for (int i=0; i < _snakes.Count; i++)
             {
-                console.WriteAt(" Snake #"+i+ ": "+_snakes[i].SnakeLength(),55+(i*15), 0);
+                console.WriteAt(" Snake #"+i+ ": "+_snakes[i].SnakeLength()+" ",55+(i*15), 0);
             }
         }
 
@@ -74,8 +71,8 @@ namespace Snake
         {
             state.Reset();
             console.ClearConsole();
-            board.SetupBoard();
-            foreach (Snake s in _snakes) { s.DrawInitialSnake(); s.Activate();} // snake itself knows where to draw initially
+            board.ResetBoard();
+            foreach (Snake s in _snakes) { s.ResetSnake(); s.Activate();} // snake itself knows where to draw initially
             board.ActivateTreats();
         }
 
@@ -103,9 +100,9 @@ namespace Snake
                     Thread.Sleep(50);
                 } while (!state.GameOver);
                 EndGame();                              // Show final gamestats
-                state.EndProgram = !GoAgain();          // Check if we are going to have another try at it
                 board.DeActivateTreats();
                 foreach(Snake s in _snakes) s.DeActivate();
+                state.EndProgram = !GoAgain();          // Check if we are going to have another try at it
             } while (!state.EndProgram);
             foreach(Snake s in _snakes) s.KillSnake();
             boardThread.Join();

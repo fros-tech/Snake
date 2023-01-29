@@ -19,8 +19,8 @@ namespace Snake
         private Treat(Position position, char character, int numPoints, ConsoleColor fgc, ConsoleColor bgc)
         {
             Position = position;
-            this.Character = character;
-            this.NumPoints = numPoints;
+            Character = character;
+            NumPoints = numPoints;
             FgColor = fgc;
             BgColor = bgc;
             lifeTime = 0;

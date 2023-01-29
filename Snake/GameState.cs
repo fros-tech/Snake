@@ -7,7 +7,6 @@
         public long maxTreatLifetime { get; set; } = 12000;
         public bool GameOver { get; set; }
         public bool GamePaused { get; set; }
-
         public int MaxSnakeLength { get; set; }
         public int LongestSnake { get; set; }
         public bool EndProgram { get; set; }

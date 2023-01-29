@@ -23,8 +23,9 @@
             _thread.Start();
         }
 
-        public void SetupBoard()
+        public void ResetBoard()
         {   // Draws the box on the outer edge of the board, and adds initial treats
+            _treats.Clear();
             _console.WriteAt("+", 0, 0);
             _console.WriteAt("+", 0, _console.GetHeight() - 1);
             _console.WriteAt("+", _console.GetWidth() - 1, 0);
