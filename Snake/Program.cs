@@ -21,7 +21,6 @@ namespace Snake
             {
                 console.WriteAt(" Snake #"+i+ ": "+_snakes[i].SnakeLength(),10, 11+i);
             }
-            // TODO Find winner and announce
             console.WriteAt(state.CauseOfDeath, 10, 15);
             console.WriteAt("Winner is snake #: "+state.MaxSnakeLength+", Length: "+state.MaxSnakeLength, 10, 16);
         }

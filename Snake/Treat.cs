@@ -3,7 +3,6 @@ namespace Snake
 {
     internal class Treat
     {
-        // TODO Let treats have a lifetime, after which they disappear again
         private static readonly char[] TreatChars = { '~', '$', '£' };
         private static readonly int[] TreatPoints = { 1, 2, 3 };
         private static readonly ConsoleColor[] FgColors = { ConsoleColor.White, ConsoleColor.Yellow, ConsoleColor.Blue };
