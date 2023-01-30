@@ -19,8 +19,8 @@
 
         private enum Directions { Left = 0, Right = 1, Up = 2, Down = 3 }
 
-        private const char SnakeHeadChar = 'O';
-        private const char SnakeBodyChar = '*';
+        public const char SnakeHeadChar = 'O';
+        public const char SnakeBodyChar = '*';
         private readonly ConsoleColor _headColor;
         private readonly ConsoleColor _bodyColor;
         private bool _snakeAlive = true;
@@ -139,8 +139,41 @@
                     
                     // Let board do the checking in the future.
                     // return will be either PORTAL, BLANK, WALL, OTHER SNAKE, OR TREAT POINTS
-                    // public char CheckForCollision(Position checkPos, out int TreatPoints, out Position PortalPosition) {}
-
+                    Board.ObstacleTypes Obstacle =
+                        _board.CheckForCollision(_nextPos, out int TreatPoints, out Position PortalPosition);
+                    switch (Obstacle)
+                    {
+                        case Board.ObstacleTypes.SPACE : 
+                            {
+                                _console.WriteAt(' ', _positions[0]);
+                                _positions.RemoveAt(0);
+                                break;
+                            }
+                        case Board.ObstacleTypes.SNAKE :
+                            {
+                                _state.GameOver = true;
+                                DoPostMortem();
+                                break;
+                            }
+                        case Board.ObstacleTypes.WALL :
+                        {
+                            _state.GameOver = true;
+                            DoPostMortem();
+                            break;
+                        }
+                        case Board.ObstacleTypes.TREAT :
+                        {
+                            _linksToBeAdded += TreatPoints;
+                            break;
+                        }
+                        case Board.ObstacleTypes.PORTAL:
+                        {
+                            // Do that special portal stuff
+                            _nextPos = PortalPosition;  // Or something like that
+                            break;
+                        }
+                    }
+                    /*
                     // **** First lets see if we collided with something; A treat or something else ****
                     int linksToAdd =
                         _board.TreatPoints(_nextPos); // Did we hit a treat; get the number of snake links to add
@@ -157,10 +190,12 @@
                         // Lets remember to remove the treat, since it has been eaten
                         _board.RemoveTreat(_nextPos);
                     }
-
+                    */
+                    
                     // **** If we didnt collide with an obstacle, lets see what to do with the snake.
                     if (!_state.GameOver)
                     {
+                        /*
                         _linksToBeAdded += linksToAdd; // There may be links already to be added, so we add them up
                         if (_linksToBeAdded ==
                             0) // if snake is not growing we need to remove the first entry in positions and blank the position
@@ -175,6 +210,7 @@
                                 _state.TreatDelay - SnakeLength() * 10);
                             _linksToBeAdded--;
                         }
+                        */
 
                         // Now move the snake head
                         _console.WriteAt(SnakeBodyChar, _positions.Last(), _bodyColor, ConsoleColor.Black);

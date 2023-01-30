@@ -8,9 +8,13 @@
         private readonly Random _rand;
         private readonly GameState _state;
         private readonly object _treatLock = new();
-        private Thread _thread;
+        private Thread _treatThread;
+        private Thread _portalThread;
 
-        private bool _treatsActivated;
+        public enum ObstacleTypes { PORTAL = 0, SPACE = 1, WALL = 2, SNAKE = 3, TREAT = 4 };
+        public static readonly char[] WallChars = { '-', '|' };
+
+        private bool _boardActivated;
 
         public Board(MyConsole console, GameState state)
         {
@@ -18,8 +22,10 @@
             _treats = new List<Treat>();
             _rand = new Random();
             _state = state;
-            _thread = new Thread(AddTreats);
-            _thread.Start();
+            _treatThread = new Thread(AddTreats);
+            _treatThread.Start();
+            //_portalThread = new Thread(AddPortals);
+            //_portalThread.Start();
         }
 
         public void ResetBoard()
@@ -43,9 +49,9 @@
               AddTreat();
         }
 
-        public void ActivateTreats() { _treatsActivated = true; }
+        public void ActivateBoard() { _boardActivated = true; }
 
-        public void DeActivateTreats() { _treatsActivated = false; }
+        public void DeActivateBoard() { _boardActivated = false; }
         
         private bool FindBlankSpot(out Position pos, int margin)
         {
@@ -103,11 +109,21 @@
             }
         }
 
+        public void AddPortalPair()
+        {
+            // Add a pair of portals
+        }
+
+        public void AddPortals()
+        {
+            // Thread method placing and removing Portal Pairs
+        }
+
         public void AddTreats() // This thread method constantly adds treats to the board
         {
             while (!_state.EndProgram)
             {
-                if (!_state.GamePaused && _treatsActivated)
+                if (!_state.GamePaused && _boardActivated)
                 {
                     AddTreat();
                     for (int i = 0; i < _treats.Count; i++)
@@ -137,10 +153,33 @@
             return 0;
         }
         
-        //public char CheckForCollision(Position checkPos, out int TreatPoints, out Position PortalPosition)
+        public ObstacleTypes CheckForCollision(Position checkPos, out int TreatPoints, out Position PortalPosition)
         // Checks a position and returns a plethora of data depending on what is found at checkPos
         // Possibilities are BLANK, TREAT, WALL, PORTAL, SNAKE(Own or Other)
-        //{
-        //}
+        {
+            char c = _console.CharAt(checkPos);
+            PortalPosition = null;
+            TreatPoints = 0;
+            if (c != MyConsole.Space)  // Ok now we have to get to work         // SPACE
+            {
+                if (Treat.TreatChars.Contains(c))                               // TREAT
+                {
+                    TreatPoints = this.TreatPoints(checkPos);
+                    return ObstacleTypes.TREAT;
+                }
+                if (WallChars.Contains(c))                                      // WALL
+                    return ObstacleTypes.WALL;
+                if (c == Snake.SnakeBodyChar || c == Snake.SnakeHeadChar)       // SNAKE
+                  return ObstacleTypes.SNAKE;
+                // PORTAL STUFF GOES HERE
+                //    
+                //
+                return ObstacleTypes.PORTAL; // To get the compiler off our backs
+            }
+            else
+            {
+                return ObstacleTypes.SPACE;                                     // SPACE
+            }
+        }
     }
 }

@@ -1,4 +1,6 @@
 ﻿
+using Microsoft.VisualBasic;
+
 namespace Snake
 {
     internal class Program
@@ -64,7 +66,7 @@ namespace Snake
             board.ResetBoard();
             ResetSnakes();
             ActivateSnakes();
-            board.ActivateTreats();
+            board.ActivateBoard();
         }
 
         public void ResetSnakes() { foreach (Snake s in _snakes) { s.ResetSnake();} }
@@ -95,7 +97,7 @@ namespace Snake
                     Thread.Sleep(50);    // Give the CPU a break
                 } while (!state.GameOver);
                 ShowEndGameStats();                      // Show final gamestats
-                board.DeActivateTreats();
+                board.DeActivateBoard();
                 DeActivateSnakes();
                 state.EndProgram = !GoAgain();           // Check if we are going to have another try at it
             } while (!state.EndProgram);

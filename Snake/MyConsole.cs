@@ -3,7 +3,7 @@ namespace Snake;
 
 internal class MyConsole
 {
-    private const char Space = ' ';
+    public const char Space = ' ';
     private const char Asterisk = '*'; 
     private static int _consoleHeight;
     private static int _consoleWidth;
@@ -102,5 +102,10 @@ internal class MyConsole
     public void WriteAt(char c, Position aPos, ConsoleColor fgc, ConsoleColor bgc)
     {
         WriteAt(c.ToString(), aPos, fgc, bgc);
+    }
+
+    public void InvertAt(Position pos)
+    {
+        throw new NotImplementedException();
     }
 }
