@@ -1,71 +1,111 @@
-﻿using System;
-
+﻿
 namespace Snake
 {
     internal class Program
     {
-        MyConsole c;
-        public bool endProgram = false;
-        public void go()
+        // TODO Add portals in the game
+          // Will require the collision code in the snake to be rewritten
+        // TODO Add animation to portals and treats when they appear
+
+        private readonly int _numSnakes = 2;  // Initial expected number of snakes
+        private MyConsole console;
+        private Board board;
+        private readonly List<Snake> _snakes = new List<Snake>();
+        
+        private GameState state;
+        private Thread boardThread;
+        
+        private void ShowEndGameStats()
         {
-            c = new MyConsole();
-            c.InitializeConsole();
-            Board b = new Board(c);
-            Snake s = new Snake(c,b);
-            bool weDied = false;
+            console.WriteAt("* GAME OVER *", 10, 10);
+            for (int i=0; i < _snakes.Count; i++) { console.WriteAt(" Snake #"+i+ ": "+_snakes[i].SnakeLength(),10, 11+i); }
+            console.WriteAt(state.CauseOfDeath, 10, 15);
+            console.WriteAt("Winner is snake #: "+state.MaxSnakeLength+", Length: "+state.MaxSnakeLength, 10, 16);
+        }
 
-            Thread snakeThread = new Thread(s.MoveSnake);
-            snakeThread.Start();
-            Thread boardThread = new Thread(b.AddTreats);
-            boardThread.Start();
-
-            b.AddTreat();
-            b.AddTreat();
-            b.AddTreat();
-            b.AddTreat();
-            b.AddTreat();
-
-            ConsoleKey k;
-
-            DateTime timeStamp;
-            TimeSpan timeElapsed;
-            timeStamp = DateTime.Now;
-            // Position p = new Position();
-
+        private bool GoAgain()
+        {
+            console.WriteAt("Want another try ? J/N :", 10, 14);
+            ConsoleKeyInfo k;
             do
             {
-                timeElapsed = DateTime.Now - timeStamp;
-                if (timeElapsed.Milliseconds > 500)
+                while (!Console.KeyAvailable) { }
+                k = Console.ReadKey(true);
+            } while (k.Key != ConsoleKey.J && k.Key != ConsoleKey.N);
+            return (k.Key == ConsoleKey.J);
+        }
+        
+        private void GameStatus()
+        {
+            console.WriteAt(" Snake Delay  : " + state.SnakeDelay + " ", 5, 0);
+            console.WriteAt(" Treat Delay  : " + state.TreatDelay + " ", 30, 0);
+            for (int i=0; i < _snakes.Count; i++) { console.WriteAt(" Snake #"+i+ ": "+_snakes[i].SnakeLength()+" ",55+(i*15), 0); }
+        }
+
+        private void SetupGame()
+        {
+            console = MyConsole.GetInstance();
+            state = new GameState();
+            board = new Board(console, state);          // Create a new board and a thread to add treats
+            boardThread = new Thread(board.AddTreats);
+            console.InitializeConsole();
+            for (int i = 0; i < _numSnakes; i++)        // Create the snakes and threads to move them
+            {
+                Snake s = new Snake(console, board, state, i);
+                _snakes.Add(s);
+            }
+            boardThread.Start();
+        }
+
+        private void ResetGame()
+        {
+            state.Reset();
+            console.ClearConsole();
+            board.ResetBoard();
+            ResetSnakes();
+            ActivateSnakes();
+            board.ActivateTreats();
+        }
+
+        public void ResetSnakes() { foreach (Snake s in _snakes) { s.ResetSnake();} }
+        public void DeActivateSnakes() { foreach (Snake s in _snakes) { s.DeActivate();} }
+        public void ActivateSnakes() { foreach (Snake s in _snakes) { s.Activate();} }
+        public void KillSnakes() { foreach (Snake s in _snakes) { s.KillSnake();}}
+        
+        private void Go()
+        {
+            SetupGame();
+            do                                          // As long as user(s) wants to have a try
+            {
+                ResetGame();
+                do                                      // Run a snake game
                 {
-                  c.WriteAt(" Snake Length :"+s.SnakeLength()+" " , 5, 0);  // TODO Add snake length update on console
-                  timeStamp = DateTime.Now;
-                }
-                endProgram = weDied;
-                if (Console.KeyAvailable)
-                {
-                    switch (Console.ReadKey(true).Key)  // true causes the console NOT to echo the key pressed onto the console
+                    if (Console.KeyAvailable)
                     {
-                        case ConsoleKey.Q:          { endProgram = true; break; }
-                        case ConsoleKey.Spacebar:   { break; } // PauseGame
-                        case ConsoleKey.UpArrow:    { s.SetDirection(Snake.Directions.Up);    break; } // TODO Snake direction up
-                        case ConsoleKey.DownArrow:  { s.SetDirection(Snake.Directions.Down);  break; } // TODO Snake direction down
-                        case ConsoleKey.RightArrow: { s.SetDirection(Snake.Directions.Right); break; } // TODO Snake Direction Right
-                        case ConsoleKey.LeftArrow:  { s.SetDirection(Snake.Directions.Left);  break; } // TODO Snake Direction Left
-                        case ConsoleKey.R:          { break; } // ??
+                        ConsoleKey keyPressed = Console.ReadKey(true).Key;
+                        foreach(Snake s in _snakes)
+                            s.SetDirection(keyPressed);
+                        switch (keyPressed)             // true causes the console NOT to echo the key pressed onto the console
+                        {
+                            case ConsoleKey.Q:          { state.GameOver = true; state.CauseOfDeath = "aborted by user!"; break; }
+                            case ConsoleKey.Spacebar:   { state.TogglePaused(); break; } // PauseGame
+                        }
                     }
-                }
-            } while (!endProgram);
-            s.killSnake();
-            c.CloseConsole();
-            if (weDied)
-                Console.WriteLine("Arrgghh!");
-            snakeThread.Join();
+                    GameStatus();                       // Update gamestats on the console
+                    Thread.Sleep(50);    // Give the CPU a break
+                } while (!state.GameOver);
+                ShowEndGameStats();                      // Show final gamestats
+                board.DeActivateTreats();
+                DeActivateSnakes();
+                state.EndProgram = !GoAgain();           // Check if we are going to have another try at it
+            } while (!state.EndProgram);
+            KillSnakes();
             boardThread.Join();
         }
 
-        static void Main(string[] args) 
+        public static void Main(string[] args) 
         {
-            new Program().go(); 
+            new Program().Go(); 
         }
     }
 }

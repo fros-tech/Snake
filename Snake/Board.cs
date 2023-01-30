@@ -1,76 +1,146 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Snake
+﻿namespace Snake
 {
     internal class Board
     {
-        const char TreatChar = '@';
-        List<Treat> Treats;
-        MyConsole c;
-        Random rand;
-        public Board(MyConsole c)
+        private const byte NumInitialTreats = 5;
+        private readonly List<Treat> _treats;
+        private readonly MyConsole _console;
+        private readonly Random _rand;
+        private readonly GameState _state;
+        private readonly object _treatLock = new();
+        private Thread _thread;
+
+        private bool _treatsActivated;
+
+        public Board(MyConsole console, GameState state)
         {
-            this.c = c;
-            Treats = new List<Treat>();
-            rand = new Random();
-            
-            c.WriteAt("+", 0, 0);
-            c.WriteAt("+", 0, c.getHeight()-1);
-            c.WriteAt("+", c.getWidth()-1, 0);
-            c.WriteAt("+", c.getWidth()-1, c.getHeight()-1);
-            for (byte b = 1; b < c.getWidth()-1; b++)
-            {
-                c.WriteAt("-", b, 0);
-                c.WriteAt("-", b, c.getHeight()-1);
-            }
-            for (byte b=1; b < c.getHeight()-1; b++)
-            {
-                c.WriteAt("|", 0, b);
-                c.WriteAt("|", c.getWidth()-1, b);
-            }
+            _console = console;
+            _treats = new List<Treat>();
+            _rand = new Random();
+            _state = state;
+            _thread = new Thread(AddTreats);
+            _thread.Start();
         }
 
-        public void AddTreat()
+        public void ResetBoard()
+        {   // Draws the box on the outer edge of the board, and adds initial treats
+            _treats.Clear();
+            _console.WriteAt("+", 0, 0);
+            _console.WriteAt("+", 0, _console.GetHeight() - 1);
+            _console.WriteAt("+", _console.GetWidth() - 1, 0);
+            _console.WriteAt("+", _console.GetWidth() - 1, _console.GetHeight() - 1);
+            for (byte b = 1; b < _console.GetWidth() - 1; b++)
+            {
+                _console.WriteAt("-", b, 0);
+                _console.WriteAt("-", b, _console.GetHeight() - 1);
+            }
+            for (byte b = 1; b < _console.GetHeight() - 1; b++)
+            {
+                _console.WriteAt("|", 0, b);
+                _console.WriteAt("|", _console.GetWidth() - 1, b);
+            }
+            for (byte b = 0; b < NumInitialTreats; b++)
+              AddTreat();
+        }
+
+        public void ActivateTreats() { _treatsActivated = true; }
+
+        public void DeActivateTreats() { _treatsActivated = false; }
+        
+        private bool FindBlankSpot(out Position pos, int margin)
         {
-            // make up to 5 attempts at placing a treat on the Board
+            // make up to 5 attempts at blank spot on the Board
+            // Board becomes crowded, and the probability of finding
+            // a blank spot varies as the gameplay progresses.
+            // margin is the desired distance to the edge of the board
             Position tempPos = new Position();
             int count = 0;
-            bool placeTreat;
             do
             {
-                tempPos.XPos = rand.Next(1,c.getWidth()-1);
-                tempPos.YPos = rand.Next(1,c.getHeight()-1);
-                placeTreat = c.isBlank(tempPos.XPos, tempPos.YPos);
-                count++;
-            } while ((count < 5) && (!placeTreat));
-            if (placeTreat)
-            {
-                c.WriteAt(TreatChar, tempPos);
-                Treats.Add(new Treat(tempPos, TreatChar));
-            }
-        }
-
-        public void AddTreats()
-        {
-            while(true)
-            {
-                AddTreat();
-                Thread.Sleep(3000);
-            }
-        }
-
-        public bool HasTreat(Position position)
-        {
-            foreach(Treat t in Treats) 
-            {
-                if ((t.GetPosition().XPos == position.XPos) && (t.GetPosition().YPos == position.YPos))
+                tempPos.XPos = _rand.Next(1,_console.GetWidth()-margin);
+                tempPos.YPos = _rand.Next(1,_console.GetHeight()-margin);
+                if (_console.IsBlank(tempPos.XPos, tempPos.YPos))
+                {
+                    pos = tempPos;
                     return true;
-            }
+                };
+                count++;
+            } while (count < 5);  // If 5 attempts where unsuccessful, give up
+            pos = null;
             return false;
         }
+
+        public void RemoveTreat(Position pos)
+        {
+            for (int i=0; i < _treats.Count; i++)
+            {
+                if(_treats[i].Position.XPos== pos.XPos)
+                    if (_treats[i].Position.YPos == pos.YPos)
+                    {
+                        lock (_treatLock)
+                        {
+                            _console.WriteAt(' ', _treats[i].Position);
+                            _treats.RemoveAt(i);
+                        }
+                    }
+            }
+        }
+        
+        private void AddTreat()
+        {
+            // make up to 5 attempts at placing a treat on the Board
+            // Board becomes crowded, and the probability of finding
+            // a blank spot decreases with the increase of number of treats
+            Position tempPos;
+            if (FindBlankSpot(out tempPos, 1))    // Let's see if we can find a blank spot to place a treat
+            {
+                lock (_treatLock)
+                {
+                    Treat t = Treat.GenerateTreat(tempPos);
+                    _console.WriteAt(t.Character, t.GetPosition(), t.FgColor, t.BgColor);
+                    _treats.Add(t);
+                }
+            }
+        }
+
+        public void AddTreats() // This thread method constantly adds treats to the board
+        {
+            while (!_state.EndProgram)
+            {
+                if (!_state.GamePaused && _treatsActivated)
+                {
+                    AddTreat();
+                    for (int i = 0; i < _treats.Count; i++)
+                    {   // Tempting to use foreach, but will cause collection modified exception
+                        _treats[i].lifeTime += _state.TreatDelay;
+                        if (_treats[i].lifeTime > _state.maxTreatLifetime)
+                        {
+                            lock (_treatLock)
+                            {
+                                _console.WriteAt(' ', _treats[i].Position);
+                                _treats.RemoveAt(i);
+                            }
+                        }
+                    }
+                }
+                Thread.Sleep(_state.TreatDelay);
+            }
+        }
+        
+        public int TreatPoints(Position position)  // Check if there is a treat at position
+        {
+            foreach(Treat t in _treats) 
+            {
+                if ((t.GetPosition().XPos == position.XPos) && (t.GetPosition().YPos == position.YPos))
+                    return t.NumPoints;
+            }
+            return 0;
+        }
+        
+        //public char CheckForCollision(Position checkPos, out int TreatPoints, out Position PortalPosition)
+        // Checks a position and returns a plethora of data depending on what is found at checkPos
+        // Possibilities are BLANK, TREAT, WALL, PORTAL, SNAKE(Own or Other)
+        //{
+        //}
     }
 }

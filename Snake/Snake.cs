@@ -1,112 +1,195 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Snake
+﻿namespace Snake
 {
     internal class Snake
     {
-        // Thias class contains code that draws a snake on the console.
+        //
+        // This class contains code that draws a snake on the console.
         // It also contains a method that will let the snake move
         // according to a defined direction
         // The snake detects collisions with console 'objects'
-        // These objects can be food, whic causes the snake to increase
-        // in length or obstacles whic cause the game to end.
+        // These objects can be food, which cause the snake to increase
+        // in length or obstacles which cause the game to end.
         // The snake will start looking like this: '******O'
+        //
+        private static ConsoleKey[,] _keySet = {{ConsoleKey.W,       ConsoleKey.S,         ConsoleKey.A,         ConsoleKey.D },
+                                               {ConsoleKey.UpArrow, ConsoleKey.DownArrow, ConsoleKey.LeftArrow, ConsoleKey.RightArrow},
+                                               {ConsoleKey.NumPad8, ConsoleKey.NumPad5,   ConsoleKey.NumPad4,   ConsoleKey.NumPad6} };
+        private static readonly ConsoleColor[] _headColors = { ConsoleColor.Cyan, ConsoleColor.Yellow, ConsoleColor.Red };
+        private static readonly ConsoleColor[] _bodyColors = { ConsoleColor.Magenta, ConsoleColor.Blue, ConsoleColor.Green };
 
-        const char snakeHead = 'O';
-        const char snakeBodyChar = '*';
-        bool SnakeAlive = true;
-        const Byte InitialSnakeLength = 7;
-        public enum Directions
+        private enum Directions { Left = 0, Right = 1, Up = 2, Down = 3 }
+
+        private const char SnakeHeadChar = 'O';
+        private const char SnakeBodyChar = '*';
+        private readonly ConsoleColor _headColor;
+        private readonly ConsoleColor _bodyColor;
+        private bool _snakeAlive = true;
+        private readonly int _snakeId; // indicates which number snake it is. Determines initiating coordinates, and keyboard keys
+                                       // used to control the snake
+        private const byte InitialSnakeLength = 7;
+        private Position? _nextPos;
+        private readonly GameState _state;
+        private readonly MyConsole _console;
+        private Directions _dir;
+        private int _linksToBeAdded;
+        private readonly Board _board;
+        private readonly Thread _thread;
+        private bool _snakeActivated;
+        private readonly List<Position> _positions;
+        
+        public Snake(MyConsole console, Board board, GameState state, int snakeId)
         {
-            Left = 0, Right = 1, Up = 2, Down = 3
+            _console = console;
+            _board = board;
+            _positions = new List<Position>();
+            _state = state;
+            _snakeId = snakeId;
+            _headColor = _headColors[_snakeId];
+            _bodyColor = _bodyColors[_snakeId];
+            _thread = new Thread(MoveSnake);
+            _thread.Start();
         }
 
-        MyConsole c;
-        Directions dir = Directions.Right;
-        Board b;
-        List<Position> positions;
-        public Snake(MyConsole c, Board b)
+        public int GetID() { return _snakeId; }
+        public void KillSnake()
         {
-            this.c = c;
-            this.b = b;
-            positions = new List<Position>();
-            DrawInitialSnake(c);
+            _snakeAlive = false;
+            _thread.Join();  // Join to main Thread; We are leaving
         }
 
-        public void killSnake()
-        {
-            SnakeAlive = false;
-        }
+        public void Activate() { _snakeActivated = true; }
 
-        private void RemoveSnake()
-        {
-            foreach(Position p in positions)
-                c.WriteAt(' ', p);
-            positions = new List<Position>();  // Leave the previous positions to the garbage collector
-        }
+        public void DeActivate() { _snakeActivated = false; }
 
-        private void DrawInitialSnake(MyConsole c)
+        public void ResetSnake() 
         {
-            // populate first part of the snake
-            int MidX = c.getWidth() / 2;
-            int MidY = c.getHeight() / 2;
-            for (int i = 0; i < InitialSnakeLength; i++)
+            // Needs to do some finagling and fiddling to place more snakes on the board
+            // Places snakes relative to each corner and with a direction towards the middle of the board
+            // to give the player a chance to adjust before the snake slams into the border or
+            // another snake. Apologies for code that may offend the eye.
+            int initXPos, initYPos;
+            _positions.Clear();  // If we ran game earlier we need to reset
+            switch (_snakeId)
             {
-                positions.Add(new Position(MidX + i, MidY));
+                case 0:    // Starts in upper left corner
+                {
+                    initXPos = 5; initYPos = 5;
+                    _dir = Directions.Right;
+                    for (int i = 0; i < InitialSnakeLength; i++) { _positions.Add(new Position(initXPos + i, initYPos)); }
+                    break;
+                }
+                case 1:    // Starts in upper right corner
+                {
+                    initXPos = _console.GetWidth()-InitialSnakeLength-5; initYPos = 5;
+                    _dir = Directions.Left;
+                    for (int i = 0; i < InitialSnakeLength; i++) { _positions.Add(new Position(initXPos - i, initYPos)); }
+                    break;
+                }
+                case 2:    // Starts in lower right corner
+                {
+                    initXPos = _console.GetWidth()-InitialSnakeLength-5; initYPos = _console.GetHeight()-5;
+                    _dir = Directions.Left;
+                    for (int i = 0; i < InitialSnakeLength; i++) { _positions.Add(new Position(initXPos - i, initYPos)); }
+                    break;
+                }
             }
-            for (int i = 0; i < positions.Count - 1; i++)
+            for (int i = 0; i < _positions.Count - 1; i++)
             {
-                c.WriteAt(snakeBodyChar, positions[i]);
+                _console.WriteAt(SnakeBodyChar, _positions[i], _bodyColor, ConsoleColor.Black);
             }
-            c.WriteAt(snakeHead, positions.Last());
+            _console.WriteAt(SnakeHeadChar, _positions.Last(), _headColor, ConsoleColor.Black);
         }
 
-        public void SetDirection(Directions dir)
-        {
-            this.dir = dir;
+        public void SetDirection(ConsoleKey key)
+        {  // Set direction according to snakeID and the ConsoleKey, making sure new direction is not directly opposite to the current
+            if (key == _keySet[_snakeId, 0] && _dir != Directions.Down)  { _dir = Directions.Up;   return; }
+            if (key == _keySet[_snakeId, 1] && _dir != Directions.Up)    { _dir = Directions.Down; return; }
+            if (key == _keySet[_snakeId, 2] && _dir != Directions.Right) { _dir = Directions.Left; return; }
+            if (key == _keySet[_snakeId, 3] && _dir != Directions.Left)  { _dir = Directions.Right; }
         }
 
         public int SnakeLength()
         {
-            return positions.Count;
+            return _positions.Count;
         }
 
-        public void MoveSnake()
+        private void DoPostMortem()
+        {
+            if ((_console.CharAt(_nextPos) == SnakeHeadChar) || (_console.CharAt(_nextPos) == SnakeBodyChar))
+                _state.CauseOfDeath = "Snake became a cannibal. Started eating itself ....";
+            else
+                _state.CauseOfDeath = "Snake hit an obstacle and died a miserable death. RIP.";
+        }
+
+        private void MoveSnake()
         {
             do
             {
-                bool growSnake;
-                //   Find next coordinate for the head, based on the direction
-                Position nextPos = null;
-                switch (dir)
+                if (!_state.GamePaused && _snakeActivated)
                 {
-                    case Directions.Up:    nextPos = new Position(positions.Last().XPos, positions.Last().YPos - 1); break;
-                    case Directions.Down:  nextPos = new Position(positions.Last().XPos, positions.Last().YPos + 1); break;
-                    case Directions.Left:  nextPos = new Position(positions.Last().XPos - 1, positions.Last().YPos); break;
-                    case Directions.Right: nextPos = new Position(positions.Last().XPos + 1, positions.Last().YPos); break;
+                    //  Find next coordinate for the head, based on the direction
+                    _nextPos = _dir switch
+                    {
+                        Directions.Up => new Position(_positions.Last().XPos, _positions.Last().YPos - 1),
+                        Directions.Down => new Position(_positions.Last().XPos, _positions.Last().YPos + 1),
+                        Directions.Left => new Position(_positions.Last().XPos - 1, _positions.Last().YPos),
+                        Directions.Right => new Position(_positions.Last().XPos + 1, _positions.Last().YPos),
+                        _ => _nextPos
+                    };
+                    
+                    // Let board do the checking in the future.
+                    // return will be either PORTAL, BLANK, WALL, OTHER SNAKE, OR TREAT POINTS
+                    // public char CheckForCollision(Position checkPos, out int TreatPoints, out Position PortalPosition) {}
+
+                    // **** First lets see if we collided with something; A treat or something else ****
+                    int linksToAdd =
+                        _board.TreatPoints(_nextPos); // Did we hit a treat; get the number of snake links to add
+                    if (linksToAdd == 0)
+                    {
+                        if (!_console.IsBlank(_nextPos)) // Collided with something tha was not a treat. Game over!!
+                        {
+                            _state.GameOver = true;
+                            DoPostMortem();
+                        }
+                    }
+                    else
+                    {
+                        // Lets remember to remove the treat, since it has been eaten
+                        _board.RemoveTreat(_nextPos);
+                    }
+
+                    // **** If we didnt collide with an obstacle, lets see what to do with the snake.
+                    if (!_state.GameOver)
+                    {
+                        _linksToBeAdded += linksToAdd; // There may be links already to be added, so we add them up
+                        if (_linksToBeAdded ==
+                            0) // if snake is not growing we need to remove the first entry in positions and blank the position
+                        {
+                            _console.WriteAt(' ', _positions[0]);
+                            _positions.RemoveAt(0);
+                        }
+                        else // snake is growing so we need to increase the speed, and decrease linksToBeAdded
+                        {
+                            _state.SnakeDelay = Math.Max(GameState.MinSnakeDelay, _state.SnakeDelay - SnakeLength());
+                            _state.TreatDelay = Math.Max(GameState.MinTreatDelay,
+                                _state.TreatDelay - SnakeLength() * 10);
+                            _linksToBeAdded--;
+                        }
+
+                        // Now move the snake head
+                        _console.WriteAt(SnakeBodyChar, _positions.Last(), _bodyColor, ConsoleColor.Black);
+                        _console.WriteAt(SnakeHeadChar, _nextPos, _headColor, ConsoleColor.Black);
+                        _positions.Add(_nextPos);
+                        if (_positions.Count > _state.MaxSnakeLength)
+                        {
+                            _state.MaxSnakeLength = _positions.Count;
+                            _state.LongestSnake = _snakeId;
+                        }
+                    }
                 }
-                growSnake = b.HasTreat(nextPos);
-                if (!growSnake && !c.isBlank(nextPos))  // Is it end of the game
-                {
-                    SnakeAlive = false;
-                    break;
-                }
-                if (!growSnake) // if snake is not growing we need to remove the first entry in positions and blank the position
-                {
-                    c.WriteAt(' ', positions[0]);
-                    positions.RemoveAt(0);
-                }
-                // Now move the snake head
-                c.WriteAt('*', positions.Last());
-                c.WriteAt('O', nextPos);
-                positions.Add(nextPos);
-                Thread.Sleep(100);
-            } while (SnakeAlive);
-            RemoveSnake();
+
+                Thread.Sleep(_state.SnakeDelay);
+            } while (!_state.EndProgram);
         }
     }
 }
