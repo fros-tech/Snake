@@ -136,5 +136,11 @@
             }
             return 0;
         }
+        
+        //public char CheckForCollision(Position checkPos, out int TreatPoints, out Position PortalPosition)
+        // Checks a position and returns a plethora of data depending on what is found at checkPos
+        // Possibilities are BLANK, TREAT, WALL, PORTAL, SNAKE(Own or Other)
+        //{
+        //}
     }
 }

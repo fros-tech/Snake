@@ -136,6 +136,10 @@
                         Directions.Right => new Position(_positions.Last().XPos + 1, _positions.Last().YPos),
                         _ => _nextPos
                     };
+                    
+                    // Let board do the checking in the future.
+                    // return will be either PORTAL, BLANK, WALL, OTHER SNAKE, OR TREAT POINTS
+                    // public char CheckForCollision(Position checkPos, out int TreatPoints, out Position PortalPosition) {}
 
                     // **** First lets see if we collided with something; A treat or something else ****
                     int linksToAdd =
