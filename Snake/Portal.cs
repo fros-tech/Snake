@@ -10,7 +10,7 @@ public class Portal
     public Position Position { get; set; }
     public long lifeTime { get; set; } // milliseconds
 
-    private Portal(Position position, char character, int numPoints, ConsoleColor fgc, ConsoleColor bgc)
+    public Portal(Position position)
     {
         Position = position;
         lifeTime = 0;

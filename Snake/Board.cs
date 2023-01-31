@@ -1,9 +1,12 @@
-﻿namespace Snake
+﻿using System.Xml;
+
+namespace Snake
 {
     internal class Board
     {
         private const byte NumInitialTreats = 5;
         private readonly List<Treat> _treats;
+        private readonly List<Portal> _portals;
         private readonly MyConsole _console;
         private readonly Random _rand;
         private readonly GameState _state;
@@ -20,6 +23,7 @@
         {
             _console = console;
             _treats = new List<Treat>();
+            _portals = new List<Portal>();
             _rand = new Random();
             _state = state;
             _treatThread = new Thread(AddTreats);
@@ -32,15 +36,15 @@
         {   // Draws the box on the outer edge of the board, and adds initial treats
             _treats.Clear();
             _console.WriteAt("+", 0, 0);
-            _console.WriteAt("+", 0, _console.GetHeight() - 1);
+            _console.WriteAt("+", 0, _console.GetHeight() - 2);
             _console.WriteAt("+", _console.GetWidth() - 1, 0);
-            _console.WriteAt("+", _console.GetWidth() - 1, _console.GetHeight() - 1);
+            _console.WriteAt("+", _console.GetWidth() - 1, _console.GetHeight() - 2);
             for (byte b = 1; b < _console.GetWidth() - 1; b++)
             {
                 _console.WriteAt("-", b, 0);
-                _console.WriteAt("-", b, _console.GetHeight() - 1);
+                _console.WriteAt("-", b, _console.GetHeight() - 2);
             }
-            for (byte b = 1; b < _console.GetHeight() - 1; b++)
+            for (byte b = 1; b < _console.GetHeight() - 2; b++)
             {
                 _console.WriteAt("|", 0, b);
                 _console.WriteAt("|", _console.GetWidth() - 1, b);
@@ -109,14 +113,37 @@
             }
         }
 
-        public void AddPortalPair()
+        public void AddPortal()
         {
-            // Add a pair of portals
+            Position pos1;
+            do
+            {
+                if (FindBlankSpot(out pos1, 7))  // Find random space for a new portal
+                {
+                    Portal p = new Portal(pos1);
+                    _console.WriteAt(Portal.PortalChar, pos1);
+                    _portals.Add(p);
+                }
+            } while (_portals.Count < 2);  // There must at least be 2 portals for this to work
         }
 
-        public void AddPortals()
+        public void RemovePortal()
+        {  // TODO Implement RemovePortal
+          // Remove Portal
+        }
+
+        public Portal ChoosePortal(Position p)  // Choose portal at other position than p
         {
-            // Thread method placing and removing Portal Pairs
+            // Find a random portal different from the
+            return null;  // TODO Implement ChoosePortal
+        }
+        
+        public void AddPortals()
+        {  // TODO Implement AddPortals
+            // If first time, place two portals, else just add one
+            // If time elapsed
+            //   If (numPortals > 2)
+            //     Remove random portal
         }
 
         public void AddTreats() // This thread method constantly adds treats to the board

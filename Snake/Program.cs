@@ -9,7 +9,7 @@ namespace Snake
           // Will require the collision code in the snake to be rewritten
         // TODO Add animation to portals and treats when they appear
 
-        private readonly int _numSnakes = 2;  // Initial expected number of snakes
+        private readonly int _numSnakes = 1;  // Initial expected number of snakes
         private MyConsole console;
         private Board board;
         private readonly List<Snake> _snakes = new List<Snake>();

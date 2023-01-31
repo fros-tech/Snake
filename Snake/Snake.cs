@@ -113,12 +113,12 @@
             return _positions.Count;
         }
 
-        private void DoPostMortem()
+        private void DoPostMortem()  // TODO expand postmortem to tell more details about the cause of death
         {
             if ((_console.CharAt(_nextPos) == SnakeHeadChar) || (_console.CharAt(_nextPos) == SnakeBodyChar))
-                _state.CauseOfDeath = "Snake became a cannibal. Started eating itself ....";
+                _state.CauseOfDeath = "Snake #"+this._snakeId+" became a cannibal. Started eating itself ....";
             else
-                _state.CauseOfDeath = "Snake hit an obstacle and died a miserable death. RIP.";
+                _state.CauseOfDeath = "Snake #"+this._snakeId+" hit an obstacle and died a miserable death. RIP.";
         }
 
         private void MoveSnake()
@@ -145,16 +145,20 @@
                     {
                         case Board.ObstacleTypes.SPACE : 
                             {
-                                _console.WriteAt(' ', _positions[0]);
-                                _positions.RemoveAt(0);
+                                if (_linksToBeAdded == 0)
+                                {
+                                    _console.WriteAt(' ', _positions[0]);
+                                    _positions.RemoveAt(0);
+                                }
+                                else
+                                {
+                                    _state.SnakeDelay = Math.Max(GameState.MinSnakeDelay, _state.SnakeDelay - SnakeLength());
+                                    _state.TreatDelay = Math.Max(GameState.MinTreatDelay, _state.TreatDelay - SnakeLength() * 10);
+                                    _linksToBeAdded--;
+                                }
                                 break;
                             }
                         case Board.ObstacleTypes.SNAKE :
-                            {
-                                _state.GameOver = true;
-                                DoPostMortem();
-                                break;
-                            }
                         case Board.ObstacleTypes.WALL :
                         {
                             _state.GameOver = true;
@@ -164,59 +168,23 @@
                         case Board.ObstacleTypes.TREAT :
                         {
                             _linksToBeAdded += TreatPoints;
+                            _board.RemoveTreat(_nextPos);
                             break;
                         }
                         case Board.ObstacleTypes.PORTAL:
-                        {
-                            // Do that special portal stuff
-                            _nextPos = PortalPosition;  // Or something like that
+                        {  // TODO Implement Portal handling in MoveSnake
+                            // Make sure board removes the portal, so that its thread will not try to move it
+                            // when it is used or in use
+                            _nextPos = PortalPosition;  // We'll assume PortalPosition holds the next head position
                             break;
                         }
                     }
-                    /*
-                    // **** First lets see if we collided with something; A treat or something else ****
-                    int linksToAdd =
-                        _board.TreatPoints(_nextPos); // Did we hit a treat; get the number of snake links to add
-                    if (linksToAdd == 0)
+                    if (!_state.GameOver)  // Let's move the head of the snake to the next position
                     {
-                        if (!_console.IsBlank(_nextPos)) // Collided with something tha was not a treat. Game over!!
-                        {
-                            _state.GameOver = true;
-                            DoPostMortem();
-                        }
-                    }
-                    else
-                    {
-                        // Lets remember to remove the treat, since it has been eaten
-                        _board.RemoveTreat(_nextPos);
-                    }
-                    */
-                    
-                    // **** If we didnt collide with an obstacle, lets see what to do with the snake.
-                    if (!_state.GameOver)
-                    {
-                        /*
-                        _linksToBeAdded += linksToAdd; // There may be links already to be added, so we add them up
-                        if (_linksToBeAdded ==
-                            0) // if snake is not growing we need to remove the first entry in positions and blank the position
-                        {
-                            _console.WriteAt(' ', _positions[0]);
-                            _positions.RemoveAt(0);
-                        }
-                        else // snake is growing so we need to increase the speed, and decrease linksToBeAdded
-                        {
-                            _state.SnakeDelay = Math.Max(GameState.MinSnakeDelay, _state.SnakeDelay - SnakeLength());
-                            _state.TreatDelay = Math.Max(GameState.MinTreatDelay,
-                                _state.TreatDelay - SnakeLength() * 10);
-                            _linksToBeAdded--;
-                        }
-                        */
-
-                        // Now move the snake head
                         _console.WriteAt(SnakeBodyChar, _positions.Last(), _bodyColor, ConsoleColor.Black);
                         _console.WriteAt(SnakeHeadChar, _nextPos, _headColor, ConsoleColor.Black);
                         _positions.Add(_nextPos);
-                        if (_positions.Count > _state.MaxSnakeLength)
+                        if (_positions.Count > _state.MaxSnakeLength)  // Update game statistics to use when game ends
                         {
                             _state.MaxSnakeLength = _positions.Count;
                             _state.LongestSnake = _snakeId;
