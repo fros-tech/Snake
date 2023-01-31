@@ -1,6 +1,4 @@
-﻿using System.Xml;
-
-namespace Snake
+﻿namespace Snake
 {
     internal class Board
     {
@@ -16,7 +14,7 @@ namespace Snake
         private Thread _portalThread;
 
         public enum ObstacleTypes { PORTAL = 0, SPACE = 1, WALL = 2, SNAKE = 3, TREAT = 4 };
-        public static readonly char[] WallChars = { '-', '|' };
+        private static readonly char[] WallChars = { '-', '|' };
 
         private bool _boardActivated;
 
@@ -29,8 +27,8 @@ namespace Snake
             _state = state;
             _treatThread = new Thread(AddTreats);
             _treatThread.Start();
-            //_portalThread = new Thread(AddPortals);
-            //_portalThread.Start();
+            _portalThread = new Thread(AddPortals);
+            _portalThread.Start();
         }
 
         public void ResetBoard()
@@ -131,27 +129,66 @@ namespace Snake
             } while (_portals.Count < 2);  // There must at least be 2 portals for this to work
         }
 
-        public void RemovePortal()
-        {  // TODO Implement RemovePortal
-          // Remove Portal
+        public void RemovePortal(Portal p)
+        {
+            lock (_portalLock)
+            {
+                _console.WriteAt(' ', p.Position);
+                _portals.Remove(p);
+            }
+           
+        }
+        public void RemovePortal(Position pos)
+        {
+            for (int i=0; i < _portals.Count; i++)
+            {
+                if(_portals[i].Position.XPos== pos.XPos)
+                    if (_portals[i].Position.YPos == pos.YPos)
+                    {
+                        lock (_portalLock)
+                        {
+                            _console.WriteAt(' ', _portals[i].Position);
+                            _portals.RemoveAt(i);
+                        }
+                    }
+            }
         }
 
-        public Portal ChoosePortal(Position p)  // Choose portal at other position than p
+        private Portal ChoosePortal(Position p)  // Choose portal at other position than p
         {
-            // do
-            // {
-            //     
-            // }while()
-            // Find a random portal different from the
-            return null;  // TODO Implement ChoosePortal
+            int i;
+            do
+            {
+                i = _rand.Next(_portals.Count);
+            } while ((_portals[i].Position.XPos == p.XPos && _portals[i].Position.YPos == p.YPos));
+            // Find a random portal different from the one at Position p
+            return _portals[i];
         }
         
         public void AddPortals()
-        {  // TODO Implement AddPortals
-            // If first time, place two portals, else just add one
-            // If time elapsed
-            //   If (numPortals > 2)
-            //     Remove random portal
+        {
+            while (!_state.EndProgram)
+            {
+                if (!_state.GamePaused && _boardActivated)
+                {
+                    AddPortal();
+                    if(_portals.Count < 2)  // There must be at least two Portal at any given time
+                        AddPortal();
+                    for (int i = 0; i < _portals.Count; i++)
+                    {   // Tempting to use foreach, but will cause collection modified exception
+                        _portals[i].lifeTime += _state.TreatDelay;
+                        if (_portals[i].lifeTime > _state.maxPortalLifetime)
+                        {
+                            lock (_treatLock)
+                            {
+                                _console.WriteAt(' ', _portals[i].Position);
+                                _portals.RemoveAt(i);
+                            }
+                        }
+                    }
+                }
+                Thread.Sleep(_state.PortalDelay);
+            }
         }
 
         public void AddTreats() // This thread method constantly adds treats to the board
@@ -187,34 +224,28 @@ namespace Snake
             }
             return 0;
         }
-        
+
         public ObstacleTypes CheckForCollision(Position checkPos, out int TreatPoints, out Position PortalPosition)
-        // Checks a position and returns a plethora of data depending on what is found at checkPos
-        // Possibilities are BLANK, TREAT, WALL, PORTAL, SNAKE(Own or Other)
+            // Checks a position and returns a plethora of data depending on what is found at checkPos
+            // Possibilities are BLANK, TREAT, WALL, PORTAL, SNAKE(Own or Other)
         {
             char c = _console.CharAt(checkPos);
             PortalPosition = null;
             TreatPoints = 0;
-            if (c != MyConsole.Space)  // Ok now we have to get to work         // SPACE
+            if (c == MyConsole.Space) // Ok now we have to get to work         // SPACE
+                return ObstacleTypes.SPACE;
+            if (Treat.TreatChars.Contains(c))                                  // TREAT
             {
-                if (Treat.TreatChars.Contains(c))                               // TREAT
-                {
-                    TreatPoints = this.TreatPoints(checkPos);
-                    return ObstacleTypes.TREAT;
-                }
-                if (WallChars.Contains(c))                                      // WALL
-                    return ObstacleTypes.WALL;
-                if (c == Snake.SnakeBodyChar || c == Snake.SnakeHeadChar)       // SNAKE
-                  return ObstacleTypes.SNAKE;
-                // PORTAL STUFF GOES HERE
-                //    
-                //
-                return ObstacleTypes.PORTAL; // To get the compiler off our backs
+                TreatPoints = this.TreatPoints(checkPos);
+                return ObstacleTypes.TREAT;
             }
-            else
-            {
-                return ObstacleTypes.SPACE;                                     // SPACE
-            }
+            if (WallChars.Contains(c))                                         // WALL
+                return ObstacleTypes.WALL;
+            if (c == Snake.SnakeBodyChar || c == Snake.SnakeHeadChar)          // SNAKE
+                return ObstacleTypes.SNAKE;
+            // If we got here, it has to be a portal
+            PortalPosition = ChoosePortal(checkPos).GetPosition();             // PORTAL
+            return ObstacleTypes.PORTAL;
         }
     }
 }

@@ -5,8 +5,6 @@ namespace Snake
 {
     internal class Program
     {
-        // TODO Add portals in the game
-          // Will require the collision code in the snake to be rewritten
         // TODO Add animation to portals and treats when they appear
 
         private readonly int _numSnakes = 1;  // Initial expected number of snakes
@@ -69,10 +67,10 @@ namespace Snake
             board.ActivateBoard();
         }
 
-        public void ResetSnakes() { foreach (Snake s in _snakes) { s.ResetSnake();} }
-        public void DeActivateSnakes() { foreach (Snake s in _snakes) { s.DeActivate();} }
-        public void ActivateSnakes() { foreach (Snake s in _snakes) { s.Activate();} }
-        public void KillSnakes() { foreach (Snake s in _snakes) { s.KillSnake();}}
+        private void ResetSnakes() { foreach (Snake s in _snakes) { s.ResetSnake();} }
+        private void DeActivateSnakes() { foreach (Snake s in _snakes) { s.DeActivate();} }
+        private void ActivateSnakes() { foreach (Snake s in _snakes) { s.Activate();} }
+        private void KillSnakes() { foreach (Snake s in _snakes) { s.KillSnake();}}
         
         private void Go()
         {

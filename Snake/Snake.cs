@@ -136,7 +136,6 @@
                         Directions.Right => new Position(_positions.Last().XPos + 1, _positions.Last().YPos),
                         _ => _nextPos
                     };
-                    
                     // Let board do the checking in the future.
                     // return will be either PORTAL, BLANK, WALL, OTHER SNAKE, OR TREAT POINTS
                     Board.ObstacleTypes Obstacle =
@@ -172,10 +171,10 @@
                             break;
                         }
                         case Board.ObstacleTypes.PORTAL:
-                        {  // TODO Implement Portal handling in MoveSnake
-                            // Make sure board removes the portal, so that its thread will not try to move it
-                            // when it is used or in use
-                            _nextPos = PortalPosition;  // We'll assume PortalPosition holds the next head position
+                        {
+                            _board.RemovePortal(PortalPosition);  // The portal we exit from
+                            _board.RemovePortal(_nextPos);        // The portal we are entering into
+                            _nextPos = PortalPosition;            // Next pos is moving out at next portals position
                             break;
                         }
                     }

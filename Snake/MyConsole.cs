@@ -1,10 +1,8 @@
-﻿using System;
-namespace Snake;
+﻿namespace Snake;
 
 internal class MyConsole
 {
     public const char Space = ' ';
-    private const char Asterisk = '*'; 
     private static int _consoleHeight;
     private static int _consoleWidth;
     private readonly object _lockWriting = new();       // locking object for when char or string is written to the console
@@ -37,8 +35,8 @@ internal class MyConsole
     private void ClearScreenCopy()
     {
         for (int x = 0; x < _consoleWidth; x++)
-        for (int y = 0; y < _consoleHeight; y++)
-            _screenCopy[x, y] = Space;
+          for (int y = 0; y < _consoleHeight; y++) 
+              _screenCopy[x, y] = Space;
     }
 
     public int GetWidth() { return _consoleWidth; }

@@ -4,7 +4,7 @@ namespace Snake
     internal class Treat
     {
         public static readonly char[] TreatChars = { '~', '$', '£', '#' };
-        public static readonly int[] TreatPoints = { 1, 2, 3, 5 };
+        private static readonly int[] TreatPoints = { 1, 2, 3, 5 };
         private static readonly ConsoleColor[] FgColors = { ConsoleColor.White, ConsoleColor.Yellow, ConsoleColor.Blue, ConsoleColor.Cyan };
         private static readonly ConsoleColor[] BgColors = { ConsoleColor.Black, ConsoleColor.Black, ConsoleColor.Black, ConsoleColor.Black };
 
