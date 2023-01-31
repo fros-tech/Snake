@@ -11,6 +11,7 @@ namespace Snake
         private readonly Random _rand;
         private readonly GameState _state;
         private readonly object _treatLock = new();
+        private readonly object _portalLock = new();
         private Thread _treatThread;
         private Thread _portalThread;
 
@@ -121,8 +122,11 @@ namespace Snake
                 if (FindBlankSpot(out pos1, 7))  // Find random space for a new portal
                 {
                     Portal p = new Portal(pos1);
-                    _console.WriteAt(Portal.PortalChar, pos1);
-                    _portals.Add(p);
+                    lock (_portalLock)
+                    {
+                        _console.WriteAt(Portal.PortalChar, pos1);
+                        _portals.Add(p);
+                    }
                 }
             } while (_portals.Count < 2);  // There must at least be 2 portals for this to work
         }
@@ -134,6 +138,10 @@ namespace Snake
 
         public Portal ChoosePortal(Position p)  // Choose portal at other position than p
         {
+            // do
+            // {
+            //     
+            // }while()
             // Find a random portal different from the
             return null;  // TODO Implement ChoosePortal
         }
