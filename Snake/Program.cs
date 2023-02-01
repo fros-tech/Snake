@@ -26,14 +26,16 @@ namespace Snake
 
         private bool GoAgain()
         {
-            console.WriteAt("Want another try ? J/N :", 10, 14);
-            ConsoleKeyInfo k;
-            do
-            {
-                while (!Console.KeyAvailable) { }
-                k = Console.ReadKey(true);
-            } while (k.Key != ConsoleKey.J && k.Key != ConsoleKey.N);
-            return (k.Key == ConsoleKey.J);
+            // console.WriteAt("Want another try ? J/N :", 10, 14);
+            // ConsoleKeyInfo k;
+            // do
+            // {
+            //     while (!Console.KeyAvailable) { }
+            //     k = Console.ReadKey(true);
+            // } while (k.Key != ConsoleKey.J && k.Key != ConsoleKey.N);
+            // return (k.Key == ConsoleKey.J);
+            return console.PopUpQuestion(20, 4, "Spil igen (J/N):", "jJnN") == 'j';
+
         }
         
         private void GameStatus()
@@ -103,8 +105,16 @@ namespace Snake
             KillSnakes();
             boardThread.Join();
         }
+        
+        public void PlayAround()
+        {
+            MyConsole c = MyConsole.GetInstance();
+            c.InitializeConsole();
+            //c.DrawFrame(10, 10, 35, 35);
+            char ch = c.PopUpQuestion(20, 10, "Nyt Spil J/N:", "jJnN");
+        }
 
-        public static void Main(string[] args) 
+        public static void Main(string[] args)
         {
             new Program().Go(); 
         }

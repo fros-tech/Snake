@@ -66,8 +66,8 @@
             int count = 0;
             do
             {
-                tempPos.XPos = _rand.Next(1,_console.GetWidth()-margin);
-                tempPos.YPos = _rand.Next(1,_console.GetHeight()-margin);
+                tempPos.XPos = _rand.Next(1+margin,_console.GetWidth()-margin);
+                tempPos.YPos = _rand.Next(1+margin,_console.GetHeight()-margin);
                 if (_console.IsBlank(tempPos.XPos, tempPos.YPos))
                 {
                     pos = tempPos;

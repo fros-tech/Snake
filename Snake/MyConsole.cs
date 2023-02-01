@@ -1,4 +1,6 @@
-﻿namespace Snake;
+﻿using System.Xml;
+
+namespace Snake;
 
 internal class MyConsole
 {
@@ -26,6 +28,8 @@ internal class MyConsole
         }
         _consoleWidth = Console.WindowWidth;
         _consoleHeight = Console.WindowHeight;
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.BackgroundColor = ConsoleColor.Black;
         _screenCopy = new char[_consoleWidth, _consoleHeight];
         Console.Clear();
         Console.CursorVisible = false;
@@ -75,7 +79,26 @@ internal class MyConsole
             Console.CursorLeft = aPos.XPos;
             Console.CursorTop = aPos.YPos;
             Console.Write(s);                              // This is where things are put on the console
-            _screenCopy![aPos.XPos, aPos.YPos] = s[0];
+            for (byte b = 0; b < s.Length; b++)
+                _screenCopy[b + aPos.XPos, aPos.YPos] = s[b];
+            //_screenCopy![aPos.XPos, aPos.YPos] = s[0];
+            Console.ForegroundColor = oldFgc;
+            Console.BackgroundColor = oldBgc;
+        }
+    }
+
+    public void WriteAt(char c, Position aPos, ConsoleColor fgc, ConsoleColor bgc)
+    {
+        lock (_lockWriting)                                // Only one thread at a time here
+        {
+            ConsoleColor oldFgc = Console.ForegroundColor;
+            ConsoleColor oldBgc = Console.BackgroundColor;
+            Console.ForegroundColor = fgc;
+            Console.BackgroundColor = bgc;
+            Console.CursorLeft = aPos.XPos;
+            Console.CursorTop = aPos.YPos;
+            Console.Write(c);                              // This is where things are put on the console
+            _screenCopy![aPos.XPos, aPos.YPos] = c;
             Console.ForegroundColor = oldFgc;
             Console.BackgroundColor = oldBgc;
         }
@@ -94,15 +117,9 @@ internal class MyConsole
 
     public void WriteAt(char c, Position aPos)
     {
-        WriteAt(c.ToString(), aPos, Console.ForegroundColor, Console.BackgroundColor);
+        WriteAt(c, aPos, Console.ForegroundColor, Console.BackgroundColor);
     }
 
-    public void WriteAt(char c, Position aPos, ConsoleColor fgc, ConsoleColor bgc)
-    {
-        WriteAt(c.ToString(), aPos, fgc, bgc);
-    }
-
-    
     public void InvertAt(Position pos)
     {
         throw new NotImplementedException();
@@ -111,25 +128,52 @@ internal class MyConsole
     public void DrawFrame(int x, int y, int Width, int Height)
     {
         WriteAt("+", x, y);
-        WriteAt("+", 0, Height);
-        WriteAt("+", Width, 0);
-        WriteAt("+", Width, Height);
-        for (byte b = 1; b < Width - 1; b++)
+        WriteAt("+", x, y + Height);
+        WriteAt("+", x + Width, y);
+        WriteAt("+", x + Width, y + Height);
+        for (byte b = 1; b < Width; b++)
         {
-            WriteAt("-", b, 0);
-            WriteAt("-", b, Height);
+            WriteAt("-", x + b, y);
+            WriteAt("-", x + b, y + Height);
         }
         for (byte b = 1; b < Height; b++)
         {
-            WriteAt("|", 0, b);
-            WriteAt("|", Width, b);
+            WriteAt("|", x, y + b);
+            WriteAt("|", x + Width, y + b);
+        }
+        for(byte i=1; i<Width; i++)
+            for(byte j=1; j<Height; j++)
+                WriteAt(" ",i+x,j+y);
+    }
+
+    public void RestoreConsole(char[,] sc)
+    {
+        for (int x = 0; x < _consoleWidth; x++)
+        for (int y = 0; y < _consoleHeight; y++)
+        {
+            Console.CursorLeft = x;
+            Console.CursorTop = y;
+            Console.Write(sc[x, y]);
         }
     }
-    
+
     public char PopUpQuestion(int Width, int Height, String message, String ValidResponses)
     {
+        char[,] _tempScreenCopy = new char[_consoleWidth, _consoleHeight];
+        _tempScreenCopy = (char[,]) _screenCopy.Clone();  // Easiest way to just restore entire console
+        int x = (_consoleWidth / 2) - (Width / 2);
+        int y = (_consoleHeight / 2) - (Height / 2);
+        DrawFrame(x, y, Width, Height);
+        WriteAt(message, x+2, y+2);
+        char c = '?';
+        do
+        {
+            if (Console.KeyAvailable)
+                c = Console.ReadKey(true).KeyChar;
+        } while (!ValidResponses.Contains(c));
+        RestoreConsole(_tempScreenCopy);
+        return c;
         // Determine size of the popup
         // Save copy of relevant area of _screencopy
-        throw new NotImplementedException();
     }
 }
