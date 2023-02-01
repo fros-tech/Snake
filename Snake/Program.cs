@@ -26,23 +26,14 @@ namespace Snake
 
         private bool GoAgain()
         {
-            // console.WriteAt("Want another try ? J/N :", 10, 14);
-            // ConsoleKeyInfo k;
-            // do
-            // {
-            //     while (!Console.KeyAvailable) { }
-            //     k = Console.ReadKey(true);
-            // } while (k.Key != ConsoleKey.J && k.Key != ConsoleKey.N);
-            // return (k.Key == ConsoleKey.J);
             return console.PopUpQuestion(20, 4, "Spil igen (J/N):", "jJnN") == 'j';
-
         }
         
         private void GameStatus()
         {
-            console.WriteAt(" Snake Delay  : " + state.SnakeDelay + " ", 5, 0);
-            console.WriteAt(" Treat Delay  : " + state.TreatDelay + " ", 30, 0);
-            for (int i=0; i < _snakes.Count; i++) { console.WriteAt(" Snake #"+i+ ": "+_snakes[i].SnakeLength()+" ",55+(i*15), 0); }
+            console.WriteAt(" Snake Delay  : " + state.SnakeDelay + " ", 5, console.GetHeight()-1);
+            console.WriteAt(" Treat Delay  : " + state.TreatDelay + " ", 30, console.GetHeight()-1);
+            for (int i=0; i < _snakes.Count; i++) { console.WriteAt(" Snake #"+i+ ": "+_snakes[i].SnakeLength()+" ",55+(i*15), console.GetHeight()-1); }
         }
 
         private void SetupGame()

@@ -13,7 +13,7 @@
         private Thread _treatThread;
         private Thread _portalThread;
 
-        public enum ObstacleTypes { PORTAL = 0, SPACE = 1, WALL = 2, SNAKE = 3, TREAT = 4 };
+        public enum ObstacleTypes { PORTAL = 0, SPACE = 1, WALL = 2, SNAKE = 3, TREAT = 4, OTHER = 5 };
         private static readonly char[] WallChars = { '-', '|' };
 
         private bool _boardActivated;
@@ -243,9 +243,13 @@
                 return ObstacleTypes.WALL;
             if (c == Snake.SnakeBodyChar || c == Snake.SnakeHeadChar)          // SNAKE
                 return ObstacleTypes.SNAKE;
-            // If we got here, it has to be a portal
-            PortalPosition = ChoosePortal(checkPos).GetPosition();             // PORTAL
-            return ObstacleTypes.PORTAL;
+            if (c == Portal.PortalChar)
+            {
+                // If we got here, it has to be a portal
+                PortalPosition = ChoosePortal(checkPos).GetPosition();         // PORTAL
+                return ObstacleTypes.PORTAL;
+            }
+            return ObstacleTypes.OTHER;  // We really shouldn't end up here
         }
     }
 }
