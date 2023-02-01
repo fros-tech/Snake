@@ -6,6 +6,7 @@ namespace Snake
     internal class Program
     {
         // TODO Add animation to portals and treats when they appear
+        // TODO Refine Game Over/retry? sequence. Both UX and Post mortem
 
         private readonly int _numSnakes = 1;  // Initial expected number of snakes
         private MyConsole console;

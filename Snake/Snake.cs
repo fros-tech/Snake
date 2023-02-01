@@ -116,7 +116,7 @@
         private void DoPostMortem()  // TODO expand postmortem to tell more details about the cause of death
         {
             if ((_console.CharAt(_nextPos) == SnakeHeadChar) || (_console.CharAt(_nextPos) == SnakeBodyChar))
-                _state.CauseOfDeath = "Snake #"+this._snakeId+" became a cannibal. Started eating itself ....";
+                _state.CauseOfDeath = "Snake #"+this._snakeId+" became a cannibal. Started eating snake! Yukkk! ....";
             else
                 _state.CauseOfDeath = "Snake #"+this._snakeId+" hit an obstacle and died a miserable death. RIP.";
         }

@@ -5,8 +5,8 @@ internal class MyConsole
     public const char Space = ' ';
     private static int _consoleHeight;
     private static int _consoleWidth;
-    private readonly object _lockWriting = new();       // locking object for when char or string is written to the console
-    private char[,]? _screenCopy;              // We save a copy of the consoles chars, so that we can see if an asterisk is already there
+    private readonly object _lockWriting = new();  // locking object for when char or string is written to the console
+    private char[,]? _screenCopy;                  // We save a copy of the consoles chars, so that we can see if an asterisk is already there
     private static MyConsole instance;
 
     private MyConsole() {}
@@ -102,8 +102,34 @@ internal class MyConsole
         WriteAt(c.ToString(), aPos, fgc, bgc);
     }
 
+    
     public void InvertAt(Position pos)
     {
+        throw new NotImplementedException();
+    }
+
+    public void DrawFrame(int x, int y, int Width, int Height)
+    {
+        WriteAt("+", x, y);
+        WriteAt("+", 0, Height);
+        WriteAt("+", Width, 0);
+        WriteAt("+", Width, Height);
+        for (byte b = 1; b < Width - 1; b++)
+        {
+            WriteAt("-", b, 0);
+            WriteAt("-", b, Height);
+        }
+        for (byte b = 1; b < Height; b++)
+        {
+            WriteAt("|", 0, b);
+            WriteAt("|", Width, b);
+        }
+    }
+    
+    public char PopUpQuestion(int Width, int Height, String message, String ValidResponses)
+    {
+        // Determine size of the popup
+        // Save copy of relevant area of _screencopy
         throw new NotImplementedException();
     }
 }
