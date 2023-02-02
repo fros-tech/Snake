@@ -142,15 +142,13 @@
         {
             for (int i=0; i < _portals.Count; i++)
             {
-                if(_portals[i].Position.XPos== pos.XPos)
-                    if (_portals[i].Position.YPos == pos.YPos)
-                    {
-                        lock (_portalLock)
-                        {
-                            _console.WriteAt(' ', _portals[i].Position);
-                            _portals.RemoveAt(i);
-                        }
-                    }
+                if (_portals[i].Position.XPos != pos.XPos) continue;
+                if (_portals[i].Position.YPos != pos.YPos) continue;
+                lock (_portalLock)
+                {
+                    _console.WriteAt(' ', _portals[i].Position);
+                    _portals.RemoveAt(i);
+                }
             }
         }
 
@@ -177,13 +175,11 @@
                     for (int i = 0; i < _portals.Count; i++)
                     {   // Tempting to use foreach, but will cause collection modified exception
                         _portals[i].lifeTime += _state.TreatDelay;
-                        if (_portals[i].lifeTime > _state.maxPortalLifetime)
+                        if (_portals[i].lifeTime <= _state.maxPortalLifetime) continue;
+                        lock (_treatLock)
                         {
-                            lock (_treatLock)
-                            {
-                                _console.WriteAt(' ', _portals[i].Position);
-                                _portals.RemoveAt(i);
-                            }
+                            _console.WriteAt(' ', _portals[i].Position);
+                            _portals.RemoveAt(i);
                         }
                     }
                 }
@@ -201,13 +197,11 @@
                     for (int i = 0; i < _treats.Count; i++)
                     {   // Tempting to use foreach, but will cause collection modified exception
                         _treats[i].lifeTime += _state.TreatDelay;
-                        if (_treats[i].lifeTime > _state.maxTreatLifetime)
+                        if (_treats[i].lifeTime <= _state.maxTreatLifetime) continue;
+                        lock (_treatLock)
                         {
-                            lock (_treatLock)
-                            {
-                                _console.WriteAt(' ', _treats[i].Position);
-                                _treats.RemoveAt(i);
-                            }
+                            _console.WriteAt(' ', _treats[i].Position);
+                            _treats.RemoveAt(i);
                         }
                     }
                 }
@@ -241,15 +235,12 @@
             }
             if (WallChars.Contains(c))                                         // WALL
                 return ObstacleTypes.WALL;
-            if (c == Snake.SnakeBodyChar || c == Snake.SnakeHeadChar)          // SNAKE
+            if (c is Snake.SnakeBodyChar or Snake.SnakeHeadChar)          // SNAKE
                 return ObstacleTypes.SNAKE;
-            if (c == Portal.PortalChar)
-            {
-                // If we got here, it has to be a portal
-                PortalPosition = ChoosePortal(checkPos).GetPosition();         // PORTAL
-                return ObstacleTypes.PORTAL;
-            }
-            return ObstacleTypes.OTHER;  // We really shouldn't end up here
+            if (c != Portal.PortalChar) return ObstacleTypes.OTHER; // We really shouldn't end up here
+            // If we got here, it has to be a portal
+            PortalPosition = ChoosePortal(checkPos).GetPosition();         // PORTAL
+            return ObstacleTypes.PORTAL;
         }
     }
 }

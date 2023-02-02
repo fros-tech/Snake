@@ -24,8 +24,8 @@
         private readonly ConsoleColor _headColor;
         private readonly ConsoleColor _bodyColor;
         private bool _snakeAlive = true;
-        private readonly int _snakeId; // indicates which number snake it is. Determines initiating coordinates, and keyboard keys
-                                       // used to control the snake
+        private readonly int _snakeId; // indicates which number snake it is. Determines initiating coordinates,
+                                       //  and keyboard keys used to control the snake
         private const byte InitialSnakeLength = 7;
         private Position? _nextPos;
         private readonly GameState _state;

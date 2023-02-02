@@ -127,20 +127,12 @@ internal class MyConsole
 
     public void DrawFrame(int x, int y, int Width, int Height)
     {
-        WriteAt("+", x, y);
+        WriteAt("+", x, y);           
         WriteAt("+", x, y + Height);
-        WriteAt("+", x + Width, y);
+        WriteAt("+", x + Width, y); 
         WriteAt("+", x + Width, y + Height);
-        for (byte b = 1; b < Width; b++)
-        {
-            WriteAt("-", x + b, y);
-            WriteAt("-", x + b, y + Height);
-        }
-        for (byte b = 1; b < Height; b++)
-        {
-            WriteAt("|", x, y + b);
-            WriteAt("|", x + Width, y + b);
-        }
+        for (byte b = 1; b < Width; b++)  { WriteAt("-", x + b, y); WriteAt("-", x + b, y + Height); }
+        for (byte b = 1; b < Height; b++) { WriteAt("|", x, y + b); WriteAt("|", x + Width, y + b);  }
         for(byte i=1; i<Width; i++)
             for(byte j=1; j<Height; j++)
                 WriteAt(" ",i+x,j+y);
@@ -149,12 +141,10 @@ internal class MyConsole
     public void RestoreConsole(char[,] sc)
     {
         for (int x = 0; x < _consoleWidth; x++)
-        for (int y = 0; y < _consoleHeight; y++)
-        {
-            Console.CursorLeft = x;
+          for (int y = 0; y < _consoleHeight; y++)
+          { Console.CursorLeft = x;
             Console.CursorTop = y;
-            Console.Write(sc[x, y]);
-        }
+            Console.Write(sc[x, y]); }
     }
 
     public char PopUpQuestion(int Width, int Height, String message, String ValidResponses)
@@ -166,11 +156,7 @@ internal class MyConsole
         DrawFrame(x, y, Width, Height);
         WriteAt(message, x+2, y+2);
         char c = '?';
-        do
-        {
-            if (Console.KeyAvailable)
-                c = Console.ReadKey(true).KeyChar;
-        } while (!ValidResponses.Contains(c));
+        do { if (Console.KeyAvailable) c = Console.ReadKey(true).KeyChar; } while (!ValidResponses.Contains(c));
         RestoreConsole(_tempScreenCopy);
         return c;
         // Determine size of the popup
