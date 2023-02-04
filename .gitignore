@@ -1,1 +1,3 @@
 /.idea/.idea.Snake/.idea/indexLayout.xml
+*.dll
+*.pdb

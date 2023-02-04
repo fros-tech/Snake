@@ -2,7 +2,7 @@
 {
     internal class Board
     {
-        private const byte NumInitialTreats = 5;
+        private const byte NumInitialTreats = 12;
         private readonly List<Treat> _treats;
         private readonly List<Portal> _portals;
         private readonly MyConsole _console;
@@ -33,20 +33,22 @@
 
         public void ResetBoard()
         {   // Draws the box on the outer edge of the board, and adds initial treats
+            int ch = _console.GetHeight();
+            int cw = _console.GetWidth();
             _treats.Clear();
             _console.WriteAt("+", 0, 0);
-            _console.WriteAt("+", 0, _console.GetHeight() - 2);
-            _console.WriteAt("+", _console.GetWidth() - 1, 0);
-            _console.WriteAt("+", _console.GetWidth() - 1, _console.GetHeight() - 2);
-            for (byte b = 1; b < _console.GetWidth() - 1; b++)
+            _console.WriteAt("+", 0, ch - 2);
+            _console.WriteAt("+", cw - 1, 0);
+            _console.WriteAt("+", cw - 1, ch - 2);
+            for (byte b = 1; b < cw - 1; b++)
             {
                 _console.WriteAt("-", b, 0);
-                _console.WriteAt("-", b, _console.GetHeight() - 2);
+                _console.WriteAt("-", b, ch - 2);
             }
-            for (byte b = 1; b < _console.GetHeight() - 2; b++)
+            for (byte b = 1; b < ch - 2; b++)
             {
                 _console.WriteAt("|", 0, b);
-                _console.WriteAt("|", _console.GetWidth() - 1, b);
+                _console.WriteAt("|", cw - 1, b);
             }
             for (byte b = 0; b < NumInitialTreats; b++)
               AddTreat();
@@ -129,15 +131,6 @@
             } while (_portals.Count < 2);  // There must at least be 2 portals for this to work
         }
 
-        public void RemovePortal(Portal p)
-        {
-            lock (_portalLock)
-            {
-                _console.WriteAt(' ', p.Position);
-                _portals.Remove(p);
-            }
-           
-        }
         public void RemovePortal(Position pos)
         {
             for (int i=0; i < _portals.Count; i++)
