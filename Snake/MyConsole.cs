@@ -9,7 +9,14 @@ internal class MyConsole
     private char[,]? _screenCopy;                  // We save a copy of the consoles chars, so that we can see if an asterisk is already there
     private static MyConsole instance;
 
-    private MyConsole() {}
+    private struct character  //  TODO Refactor to hold foreground and background colors in _screencopy
+    {
+        private char c;
+        private ConsoleColor fg;
+        private ConsoleColor bg;
+    }
+
+    private MyConsole() {}  // Only here to make the constructor private (Singleton pattern)
 
     public static MyConsole GetInstance()
     {
@@ -39,9 +46,9 @@ internal class MyConsole
               _screenCopy[x, y] = Space;
     }
 
-    public int GetWidth() { return _consoleWidth; }
+    public static int GetWidth() { return _consoleWidth; }
 
-    public int GetHeight() { return _consoleHeight; }
+    public static int GetHeight() { return _consoleHeight; }
 
     public void ClearConsole()
     {
