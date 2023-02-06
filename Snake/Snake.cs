@@ -2,15 +2,9 @@
 {
     internal class Snake
     {
-        //
-        // This class contains code that draws a snake on the console.
-        // It also contains a method that will let the snake move
-        // according to a defined direction
-        // The snake detects collisions with console 'objects'
-        // These objects can be food, which cause the snake to increase
-        // in length or obstacles which cause the game to end.
+        // This class draws a snake on the console. A thread keeps it moving at a pace that is proportional to its length.
+        // The snake detects collisions and acts accordingly. Different treats extend the snake with different number of links
         // The snake will start looking like this: '******O'
-        //
         private static ConsoleKey[,] _keySet = {{ConsoleKey.W,       ConsoleKey.S,         ConsoleKey.A,         ConsoleKey.D },
                                                {ConsoleKey.UpArrow, ConsoleKey.DownArrow, ConsoleKey.LeftArrow, ConsoleKey.RightArrow},
                                                {ConsoleKey.NumPad8, ConsoleKey.NumPad5,   ConsoleKey.NumPad4,   ConsoleKey.NumPad6} };
@@ -24,8 +18,7 @@
         private readonly ConsoleColor _headColor;
         private readonly ConsoleColor _bodyColor;
         private bool _snakeAlive = true;
-        private readonly int _snakeId; // indicates which number snake it is. Determines initiating coordinates, and keyboard keys
-                                       // used to control the snake
+        private readonly int _snakeId; // Determines colors and starting coordinates at start of game
         private const byte InitialSnakeLength = 7;
         private Position? _nextPos;
         private readonly GameState _state;
@@ -46,7 +39,7 @@
             _snakeId = snakeId;
             _headColor = _headColors[_snakeId];
             _bodyColor = _bodyColors[_snakeId];
-            _thread = new Thread(MoveSnake);
+            _thread = new Thread(MoveSnake) { IsBackground = true };
             _thread.Start();
         }
 
@@ -130,9 +123,9 @@
                     //  Find next coordinate for the head, based on the direction
                     _nextPos = _dir switch
                     {
-                        Directions.Up => new Position(_positions.Last().XPos, _positions.Last().YPos - 1),
-                        Directions.Down => new Position(_positions.Last().XPos, _positions.Last().YPos + 1),
-                        Directions.Left => new Position(_positions.Last().XPos - 1, _positions.Last().YPos),
+                        Directions.Up    => new Position(_positions.Last().XPos, _positions.Last().YPos - 1),
+                        Directions.Down  => new Position(_positions.Last().XPos, _positions.Last().YPos + 1),
+                        Directions.Left  => new Position(_positions.Last().XPos - 1, _positions.Last().YPos),
                         Directions.Right => new Position(_positions.Last().XPos + 1, _positions.Last().YPos),
                         _ => _nextPos
                     };
@@ -190,7 +183,6 @@
                         }
                     }
                 }
-
                 Thread.Sleep(_state.SnakeDelay);
             } while (!_state.EndProgram);
         }

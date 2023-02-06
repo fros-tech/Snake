@@ -1,5 +1,4 @@
-﻿
-using Microsoft.VisualBasic;
+﻿using System.Xml;
 
 namespace Snake
 {
@@ -21,26 +20,42 @@ namespace Snake
             console.WriteAt("* GAME OVER *", 10, 10);
             for (int i=0; i < _snakes.Count; i++) { console.WriteAt(" Snake #"+i+ ": "+_snakes[i].SnakeLength(),10, 11+i); }
             console.WriteAt(state.CauseOfDeath, 10, 15);
-            console.WriteAt("Winner is snake #: "+state.MaxSnakeLength+", Length: "+state.MaxSnakeLength, 10, 16);
+            console.WriteAt("Winner is snake #: "+state.LongestSnake+", Length: "+state.MaxSnakeLength, 10, 16);
         }
 
         private bool GoAgain()
         {
-            console.WriteAt("Want another try ? J/N :", 10, 14);
-            ConsoleKeyInfo k;
-            do
-            {
-                while (!Console.KeyAvailable) { }
-                k = Console.ReadKey(true);
-            } while (k.Key != ConsoleKey.J && k.Key != ConsoleKey.N);
-            return (k.Key == ConsoleKey.J);
+            return console.PopUpQuestion(20, 4, "Spil igen (J/N):", new [] {ConsoleKey.J, ConsoleKey.N}) == ConsoleKey.J;
+        }
+
+        private void ShowHelp()
+        {
+            bool _paused = state.GamePaused;
+            Thread.Sleep(400);
+            state.GamePaused = true;
+            console.SaveScreen();
+            console.WriteAt("+------------------------------------------------------------+", 5, 5,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAt("+------------------------- Snake V1.0 -----------------------+", 5, 6,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAt("+--  CONTROLS:                               TREATS:       --+", 5, 7,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAt("+--  Snake #0   Use 'A', 'W', 'S', 'D'       '~' 1 point   --+", 5, 8,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAt("+--  Snake #1   Use Arrow keys               '$' 2 points  --+", 5, 9,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAt("+--  Snake #2   Use Numrpad keys             '£' 3 points  --+", 5, 10, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAt("+--  Press 'Q' or <Esc> to quit game         '#' 5 points  --+", 5, 11, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAt("+--                                                        --+", 5, 12, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAt("+--  PORTALS: '@'                                          --+", 5, 13, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAt("+------------------------------------------------------------+", 5, 14, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAt("+----------------- <Esc> to leave help screen ---------------+", 5, 15, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            ConsoleKey k = console.WaitForKey(new [] {ConsoleKey.Escape});
+            console.RestoreScreen();
+            state.GamePaused = _paused;
         }
         
         private void GameStatus()
         {
-            console.WriteAt(" Snake Delay  : " + state.SnakeDelay + " ", 5, 0);
-            console.WriteAt(" Treat Delay  : " + state.TreatDelay + " ", 30, 0);
-            for (int i=0; i < _snakes.Count; i++) { console.WriteAt(" Snake #"+i+ ": "+_snakes[i].SnakeLength()+" ",55+(i*15), 0); }
+            int ch = console.GetHeight()-1;
+            console.WriteAt(" Snake Delay  : " + state.SnakeDelay + " ", 2, ch);
+            console.WriteAt(" Treat Delay  : " + state.TreatDelay + " ", 27, ch);
+            for (int i=0; i < _snakes.Count; i++) { console.WriteAt(" Snake #"+i+ ": "+_snakes[i].SnakeLength()+" ",52+(i*15), ch); }
         }
 
         private void SetupGame()
@@ -49,6 +64,7 @@ namespace Snake
             state = new GameState();
             board = new Board(console, state);          // Create a new board and a thread to add treats
             boardThread = new Thread(board.AddTreats);
+            boardThread.IsBackground = true;
             console.InitializeConsole();
             for (int i = 0; i < _numSnakes; i++)        // Create the snakes and threads to move them
             {
@@ -66,10 +82,11 @@ namespace Snake
             ResetSnakes();
             ActivateSnakes();
             board.ActivateBoard();
+            console.WriteAt(" H : Help    <Esc>/Q : Quit ",  console.GetWidth()-31, console.GetHeight()-1);
         }
 
         private void ResetSnakes() { foreach (Snake s in _snakes) { s.ResetSnake();} }
-        private void DeActivateSnakes() { foreach (Snake s in _snakes) { s.DeActivate();} }
+        private void DeActivateSnakes() { foreach (Snake s in _snakes) { s.DeActivate();} Thread.Sleep(100); }
         private void ActivateSnakes() { foreach (Snake s in _snakes) { s.Activate();} }
         private void KillSnakes() { foreach (Snake s in _snakes) { s.KillSnake();}}
         
@@ -88,23 +105,24 @@ namespace Snake
                             s.SetDirection(keyPressed);
                         switch (keyPressed)             // true causes the console NOT to echo the key pressed onto the console
                         {
-                            case ConsoleKey.Q:          { state.GameOver = true; state.CauseOfDeath = "aborted by user!"; break; }
+                            case ConsoleKey.Q:
+                            case ConsoleKey.Escape:     { state.GameOver = true; state.CauseOfDeath = "aborted by user!"; break; }
                             case ConsoleKey.Spacebar:   { state.TogglePaused(); break; } // PauseGame
+                            case ConsoleKey.H:          { ShowHelp(); break; }
                         }
                     }
                     GameStatus();                       // Update gamestats on the console
                     Thread.Sleep(50);    // Give the CPU a break
                 } while (!state.GameOver);
-                ShowEndGameStats();                      // Show final gamestats
                 board.DeActivateBoard();
                 DeActivateSnakes();
-                state.EndProgram = !GoAgain();           // Check if we are going to have another try at it
+                ShowEndGameStats();                      // Show final gamestats
+                state.EndProgram = !GoAgain();           // Check if we are going to have another go at it
             } while (!state.EndProgram);
-            KillSnakes();
-            boardThread.Join();
+            Console.Clear();
         }
-
-        public static void Main(string[] args) 
+        
+        public static void Main(string[] args)
         {
             new Program().Go(); 
         }
