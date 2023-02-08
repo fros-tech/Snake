@@ -61,8 +61,8 @@ internal class MyConsole
         public short Bottom;
     }
 
-    private const int WindowWidth = 120;
-    private const int WindowHeight = 45;
+    //private const int WindowWidth = 120;
+    //private const int WindowHeight = 45;
     private CharInfo[] buf;
     private SmallRect rect;
     private SafeFileHandle h;
@@ -108,8 +108,8 @@ internal class MyConsole
             Console.ForegroundColor = ConsoleColor.White;
             Console.BackgroundColor = ConsoleColor.Black;
             // _screenCopy = new char[_consoleWidth, _consoleHeight];
-            buf = new CharInfo[WindowWidth * WindowHeight];
-            rect = new SmallRect() { Left = 0, Top = 0, Right = WindowWidth, Bottom = WindowHeight };
+            buf = new CharInfo[_consoleWidth * _consoleHeight];
+            rect = new SmallRect() { Left = 0, Top = 0, Right = (short) _consoleWidth, Bottom = (short) _consoleHeight };
             _screenCopy_ = new ScreenChar[_consoleWidth, _consoleHeight];
             Console.Clear();
             ClearScreenCopy();
@@ -164,10 +164,10 @@ internal class MyConsole
             // TODO MANGLER FARVER !!!!
             for (int i = 0; i < s.Length; i++)
             {
-                buf[(aPos.YPos * WindowWidth) + aPos.XPos].Attributes = 7;
-                buf[(aPos.YPos * WindowWidth) + aPos.XPos].Char.AsciiChar = Encoding.ASCII.GetBytes(s)[i];
+                buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Attributes = 7;
+                buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Char.AsciiChar = Encoding.ASCII.GetBytes(s)[i];
             }
-            bool b = WriteConsoleOutputW(h, buf, new Coord() { X = WindowWidth, Y = WindowHeight },
+            bool b = WriteConsoleOutputW(h, buf, new Coord() { X = (short) _consoleWidth, Y = (short) _consoleHeight },
                 new Coord() { X = 0, Y = 0 }, ref rect);
             // Console.ForegroundColor = fgc;
             // Console.BackgroundColor = bgc;
@@ -188,9 +188,9 @@ internal class MyConsole
         lock (_lockWriting)                                // Only one thread at a time here
         {
             // TODO MANGLER FARVER !!!!
-            buf[(aPos.YPos * WindowWidth) + aPos.XPos].Attributes = 7;
-            buf[(aPos.YPos * WindowWidth) + aPos.XPos].Char.UnicodeChar = (ushort)c;
-            bool b = WriteConsoleOutputW(h, buf, new Coord() { X = WindowWidth, Y = WindowHeight },
+            buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Attributes = 7;
+            buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Char.UnicodeChar = (ushort)c;
+            bool b = WriteConsoleOutputW(h, buf, new Coord() { X = (short) _consoleWidth, Y = (short) _consoleHeight },
                 new Coord() { X = 0, Y = 0 }, ref rect);
             // Console.ForegroundColor = fgc;
             // Console.BackgroundColor = bgc;
