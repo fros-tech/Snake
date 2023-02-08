@@ -1,9 +1,72 @@
-﻿using System.Xml;
+﻿using System.Runtime.InteropServices;
+using System.Text;
+using Microsoft.Win32.SafeHandles;
+using System.Xml;
 
 namespace Snake;
 
 internal class MyConsole
 {
+    [DllImport("Kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+    static extern SafeFileHandle CreateFile(
+        string fileName,
+        [MarshalAs(UnmanagedType.U4)] uint fileAccess,
+        [MarshalAs(UnmanagedType.U4)] uint fileShare,
+        IntPtr securityAttributes,
+        [MarshalAs(UnmanagedType.U4)] FileMode creationDisposition,
+        [MarshalAs(UnmanagedType.U4)] int flags,
+        IntPtr template);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    static extern bool WriteConsoleOutputW(
+        SafeFileHandle hConsoleOutput, 
+        CharInfo[] lpBuffer, 
+        Coord dwBufferSize, 
+        Coord dwBufferCoord, 
+        ref SmallRect lpWriteRegion);
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Coord
+    {
+        public short X;
+        public short Y;
+
+        public Coord(short X, short Y)
+        {
+            this.X = X;
+            this.Y = Y;
+        }
+    };
+
+    [StructLayout(LayoutKind.Explicit)]
+    public struct CharUnion
+    {
+        [FieldOffset(0)] public ushort UnicodeChar;
+        [FieldOffset(0)] public byte AsciiChar;
+    }
+
+    [StructLayout(LayoutKind.Explicit)]
+    public struct CharInfo
+    {
+        [FieldOffset(0)] public CharUnion Char;
+        [FieldOffset(2)] public short Attributes;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct SmallRect
+    {
+        public short Left;
+        public short Top;
+        public short Right;
+        public short Bottom;
+    }
+
+    private const int WindowWidth = 120;
+    private const int WindowHeight = 45;
+    private CharInfo[] buf;
+    private SmallRect rect;
+    private SafeFileHandle h;
+
     public const char Space = ' ';
     private static int _consoleHeight;
     private static int _consoleWidth;
@@ -29,22 +92,29 @@ internal class MyConsole
             instance = new MyConsole();
         return instance;
     }
+    [STAThread]
     public void InitializeConsole()
     {
-        if (OperatingSystem.IsWindows())
+        h = CreateFile("CONOUT$", 0x40000000, 2, IntPtr.Zero, FileMode.Open, 0, IntPtr.Zero);
+        if (!h.IsInvalid)
         {
-            Console.SetBufferSize(120, 50);
-            Console.SetWindowSize(120, 50);
+            if (OperatingSystem.IsWindows())
+            {
+                Console.SetBufferSize(120, 50);
+                Console.SetWindowSize(120, 50);
+            }
+            _consoleWidth = Console.WindowWidth;
+            _consoleHeight = Console.WindowHeight;
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.BackgroundColor = ConsoleColor.Black;
+            // _screenCopy = new char[_consoleWidth, _consoleHeight];
+            buf = new CharInfo[WindowWidth * WindowHeight];
+            rect = new SmallRect() { Left = 0, Top = 0, Right = WindowWidth, Bottom = WindowHeight };
+            _screenCopy_ = new ScreenChar[_consoleWidth, _consoleHeight];
+            Console.Clear();
+            ClearScreenCopy();
+            Console.CursorVisible = false;
         }
-        _consoleWidth = Console.WindowWidth;
-        _consoleHeight = Console.WindowHeight;
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.BackgroundColor = ConsoleColor.Black;
-        // _screenCopy = new char[_consoleWidth, _consoleHeight];
-        _screenCopy_ = new ScreenChar[_consoleWidth, _consoleHeight];
-        Console.Clear();
-        ClearScreenCopy();
-        Console.CursorVisible = false;
     }
 
     private void ClearScreenCopy()
@@ -91,16 +161,24 @@ internal class MyConsole
     {
         lock (_lockWriting)                                // Only one thread at a time here
         {
-            Console.ForegroundColor = fgc;
-            Console.BackgroundColor = bgc;
-            Console.CursorLeft = aPos.XPos;
-            Console.CursorTop = aPos.YPos;
-            Console.Write(s);                              // This is where things are put on the console
-            for (byte b = 0; b < s.Length; b++)
+            // TODO MANGLER FARVER !!!!
+            for (int i = 0; i < s.Length; i++)
             {
-                _screenCopy_[b + aPos.XPos, aPos.YPos].c = s[b];
-                _screenCopy_[b + aPos.XPos, aPos.YPos].fgc = fgc;
-                _screenCopy_[b + aPos.XPos, aPos.YPos].bgc = bgc;
+                buf[(aPos.YPos * WindowWidth) + aPos.XPos].Attributes = 7;
+                buf[(aPos.YPos * WindowWidth) + aPos.XPos].Char.AsciiChar = Encoding.ASCII.GetBytes(s)[i];
+            }
+            bool b = WriteConsoleOutputW(h, buf, new Coord() { X = WindowWidth, Y = WindowHeight },
+                new Coord() { X = 0, Y = 0 }, ref rect);
+            // Console.ForegroundColor = fgc;
+            // Console.BackgroundColor = bgc;
+            // Console.CursorLeft = aPos.XPos;
+            // Console.CursorTop = aPos.YPos;
+            // Console.Write(s);                              // This is where things are put on the console
+            for (byte b_ = 0; b_ < s.Length; b_++)
+            {
+                _screenCopy_[b_ + aPos.XPos, aPos.YPos].c = s[b_];
+                _screenCopy_[b_ + aPos.XPos, aPos.YPos].fgc = fgc;
+                _screenCopy_[b_ + aPos.XPos, aPos.YPos].bgc = bgc;
             }
         }
     }
@@ -109,11 +187,16 @@ internal class MyConsole
     {
         lock (_lockWriting)                                // Only one thread at a time here
         {
-            Console.ForegroundColor = fgc;
-            Console.BackgroundColor = bgc;
-            Console.CursorLeft = aPos.XPos;
-            Console.CursorTop = aPos.YPos;
-            Console.Write(c);                              // This is where things are put on the console
+            // TODO MANGLER FARVER !!!!
+            buf[(aPos.YPos * WindowWidth) + aPos.XPos].Attributes = 7;
+            buf[(aPos.YPos * WindowWidth) + aPos.XPos].Char.UnicodeChar = (ushort)c;
+            bool b = WriteConsoleOutputW(h, buf, new Coord() { X = WindowWidth, Y = WindowHeight },
+                new Coord() { X = 0, Y = 0 }, ref rect);
+            // Console.ForegroundColor = fgc;
+            // Console.BackgroundColor = bgc;
+            // Console.CursorLeft = aPos.XPos;
+            // Console.CursorTop = aPos.YPos;
+            // Console.Write(c);                              // This is where things are put on the console
             _screenCopy_[aPos.XPos, aPos.YPos].c = c;
             _screenCopy_[aPos.XPos, aPos.YPos].fgc = fgc;
             _screenCopy_[aPos.XPos, aPos.YPos].bgc = bgc;
