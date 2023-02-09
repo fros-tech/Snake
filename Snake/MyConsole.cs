@@ -46,14 +46,14 @@ internal class MyConsole
     }
 
     [StructLayout(LayoutKind.Explicit)]
-    public struct CharInfo
+    private struct CharInfo
     {
         [FieldOffset(0)] public CharUnion Char;
         [FieldOffset(2)] public short Attributes;
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct SmallRect
+    private struct SmallRect
     {
         public short Left;
         public short Top;
@@ -142,14 +142,12 @@ internal class MyConsole
 
     public bool IsBlank(int x, int y)
     {
-        // return (_screenCopy[x, y] == Space);
         return (_screenCopy_[x, y].c == Space);
     }
 
     public char CharAt(Position p)
     {
         return _screenCopy_[p.XPos, p.YPos].c;
-        // return _screenCopy[p.XPos, p.YPos];
     }
 
     public bool IsBlank(Position p)
@@ -161,19 +159,15 @@ internal class MyConsole
     {
         lock (_lockWriting)                                // Only one thread at a time here
         {
-            // TODO MANGLER FARVER !!!!
             for (int i = 0; i < s.Length; i++)
-            {
-                buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Attributes = 7;
+            {  // TODO fix color Attributes
+                //buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Attributes = 7;
+                buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Attributes = 7; //(short) (( (int) fgc  | (int) bgc) << 4);
+                short sh = (short) (( (int) fgc  | (int) bgc) << 4);
                 buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Char.AsciiChar = Encoding.ASCII.GetBytes(s)[i];
             }
             bool b = WriteConsoleOutputW(h, buf, new Coord() { X = (short) _consoleWidth, Y = (short) _consoleHeight },
                 new Coord() { X = 0, Y = 0 }, ref rect);
-            // Console.ForegroundColor = fgc;
-            // Console.BackgroundColor = bgc;
-            // Console.CursorLeft = aPos.XPos;
-            // Console.CursorTop = aPos.YPos;
-            // Console.Write(s);                              // This is where things are put on the console
             for (byte b_ = 0; b_ < s.Length; b_++)
             {
                 _screenCopy_[b_ + aPos.XPos, aPos.YPos].c = s[b_];
@@ -186,17 +180,12 @@ internal class MyConsole
     public void WriteAt(char c, Position aPos, ConsoleColor fgc, ConsoleColor bgc)
     {
         lock (_lockWriting)                                // Only one thread at a time here
-        {
-            // TODO MANGLER FARVER !!!!
-            buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Attributes = 7;
+        {  // TODO fix color Attributes
+            //buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Attributes = 7;
+            buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Attributes = 7; //(short) (( (int) fgc  | (int) bgc) << 4);
             buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Char.UnicodeChar = (ushort)c;
             bool b = WriteConsoleOutputW(h, buf, new Coord() { X = (short) _consoleWidth, Y = (short) _consoleHeight },
                 new Coord() { X = 0, Y = 0 }, ref rect);
-            // Console.ForegroundColor = fgc;
-            // Console.BackgroundColor = bgc;
-            // Console.CursorLeft = aPos.XPos;
-            // Console.CursorTop = aPos.YPos;
-            // Console.Write(c);                              // This is where things are put on the console
             _screenCopy_[aPos.XPos, aPos.YPos].c = c;
             _screenCopy_[aPos.XPos, aPos.YPos].fgc = fgc;
             _screenCopy_[aPos.XPos, aPos.YPos].bgc = bgc;
@@ -208,10 +197,23 @@ internal class MyConsole
         Position p = new Position(x, y);
         WriteAt(s, p, Console.ForegroundColor, Console.BackgroundColor);
     }
+    
     public void WriteAt(string s, int x, int y, ConsoleColor fgc, ConsoleColor bgc)
     {
         Position p = new Position(x, y);
         WriteAt(s, p, fgc, bgc);
+    }
+
+    public void WriteAt(char c, int x, int y, ConsoleColor fgc, ConsoleColor bgc)
+    {
+        Position p = new Position(x, y);
+        WriteAt(c, p, fgc, bgc);
+    }
+
+    public void WriteAt(char c, int x, int y)
+    {
+        Position p = new Position(x, y);
+        WriteAt(c, p);
     }
 
     public void WriteAt(char c, Position aPos)
@@ -249,20 +251,16 @@ internal class MyConsole
     
     private void RestoreConsole(ScreenChar[,] sc)
     {
+        // TODO Refactor for speed
         for (int x = 0; x < _consoleWidth; x++)
         for (int y = 0; y < _consoleHeight - 1; y++)
         {
-            Console.CursorLeft = x;
-            Console.CursorTop = y;
             WriteAt(sc[x, y].c.ToString(), x, y, sc[x, y].fgc, sc[x, y].bgc);
         }
-        //Console.ForegroundColor = sc[x, y].fgc;
-            //Console.BackgroundColor = sc[x, y].bgc;
-            //Console.Write(sc[x,y].c); }
     }
 
     private ScreenChar[,] BackupConsole()
-    {
+    {  // TODO Refactor for speed
         ScreenChar[,] _tmpScrCopy = new ScreenChar[_consoleWidth, _consoleHeight];
         for(int x=0; x<_consoleWidth; x++)
           for (int y = 0; y < _consoleHeight-1; y++)

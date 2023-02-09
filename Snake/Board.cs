@@ -36,19 +36,19 @@
             int ch = _console.GetHeight();
             int cw = _console.GetWidth();
             _treats.Clear();
-            _console.WriteAt("+", 0, 0);
-            _console.WriteAt("+", 0, ch - 2);
-            _console.WriteAt("+", cw - 1, 0);
-            _console.WriteAt("+", cw - 1, ch - 2);
+            _console.WriteAt('+', 0, 0);
+            _console.WriteAt('+', 0, ch - 2);
+            _console.WriteAt('+', cw - 1, 0);
+            _console.WriteAt('+', cw - 1, ch - 2);
             for (byte b = 1; b < cw - 1; b++)
             {
-                _console.WriteAt("-", b, 0);
-                _console.WriteAt("-", b, ch - 2);
+                _console.WriteAt('-', b, 0);
+                _console.WriteAt('-', b, ch - 2);
             }
             for (byte b = 1; b < ch - 2; b++)
             {
-                _console.WriteAt("|", 0, b);
-                _console.WriteAt("|", cw - 1, b);
+                _console.WriteAt('|', 0, b);
+                _console.WriteAt('|', cw - 1, b);
             }
             for (byte b = 0; b < NumInitialTreats; b++)
               AddTreat();
@@ -99,9 +99,6 @@
         
         private void AddTreat()
         {
-            // make up to 5 attempts at placing a treat on the Board
-            // Board becomes crowded, and the probability of finding
-            // a blank spot decreases with the increase of number of treats
             Position tempPos;
             if (FindBlankSpot(out tempPos, 1))    // Let's see if we can find a blank spot to place a treat
             {
