@@ -157,32 +157,26 @@ internal class MyConsole
 
     private void WriteAt(string s, Position aPos, ConsoleColor fgc, ConsoleColor bgc)
     {
-        lock (_lockWriting)                                // Only one thread at a time here
+        lock (_lockWriting)  // Only one thread at a time here
         {
             for (int i = 0; i < s.Length; i++)
-            {  // TODO fix color Attributes
-                //buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Attributes = 7;
-                buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Attributes = 7; //(short) (( (int) fgc  | (int) bgc) << 4);
-                short sh = (short) (( (int) fgc  | (int) bgc) << 4);
+            {
+                buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Attributes = (short) ( (int) fgc  | ((int) bgc << 4));
                 buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Char.AsciiChar = Encoding.ASCII.GetBytes(s)[i];
+                _screenCopy_[i + aPos.XPos, aPos.YPos].c = s[i];
+                _screenCopy_[i + aPos.XPos, aPos.YPos].fgc = fgc;
+                _screenCopy_[i + aPos.XPos, aPos.YPos].bgc = bgc;
             }
             bool b = WriteConsoleOutputW(h, buf, new Coord() { X = (short) _consoleWidth, Y = (short) _consoleHeight },
                 new Coord() { X = 0, Y = 0 }, ref rect);
-            for (byte b_ = 0; b_ < s.Length; b_++)
-            {
-                _screenCopy_[b_ + aPos.XPos, aPos.YPos].c = s[b_];
-                _screenCopy_[b_ + aPos.XPos, aPos.YPos].fgc = fgc;
-                _screenCopy_[b_ + aPos.XPos, aPos.YPos].bgc = bgc;
-            }
         }
     }
 
     public void WriteAt(char c, Position aPos, ConsoleColor fgc, ConsoleColor bgc)
     {
-        lock (_lockWriting)                                // Only one thread at a time here
-        {  // TODO fix color Attributes
-            //buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Attributes = 7;
-            buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Attributes = 7; //(short) (( (int) fgc  | (int) bgc) << 4);
+        lock (_lockWriting)  // Only one thread at a time here
+        {
+            buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Attributes = (short) ( (int) fgc  | ((int) bgc << 4));
             buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Char.UnicodeChar = (ushort)c;
             bool b = WriteConsoleOutputW(h, buf, new Coord() { X = (short) _consoleWidth, Y = (short) _consoleHeight },
                 new Coord() { X = 0, Y = 0 }, ref rect);
