@@ -1,7 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Win32.SafeHandles;
-using System.Xml;
 
 namespace Snake;
 
@@ -61,9 +60,7 @@ internal class MyConsole
         public short Bottom;
     }
 
-    //private const int WindowWidth = 120;
-    //private const int WindowHeight = 45;
-    private CharInfo[] buf;
+    private CharInfo[] buf, bufCopy;
     private SmallRect rect;
     private SafeFileHandle h;
 
@@ -71,7 +68,6 @@ internal class MyConsole
     private static int _consoleHeight;
     private static int _consoleWidth;
     private readonly object _lockWriting = new();  // locking object for when char or string is written to the console
-    // private char[,]? _screenCopy;                  // We save a copy of the consoles chars, so that we can see if an asterisk is already there
     private static MyConsole instance;
     private ScreenChar[,] _tempScreen;
     
@@ -109,6 +105,7 @@ internal class MyConsole
             Console.BackgroundColor = ConsoleColor.Black;
             // _screenCopy = new char[_consoleWidth, _consoleHeight];
             buf = new CharInfo[_consoleWidth * _consoleHeight];
+            bufCopy = new CharInfo[_consoleWidth * _consoleHeight];
             rect = new SmallRect() { Left = 0, Top = 0, Right = (short) _consoleWidth, Bottom = (short) _consoleHeight };
             _screenCopy_ = new ScreenChar[_consoleWidth, _consoleHeight];
             Console.Clear();
@@ -119,10 +116,10 @@ internal class MyConsole
 
     private void ClearScreenCopy()
     {
+        // Array.Copy(buf, bufCopy);    // Need more than a shallow copy
         for (int x = 0; x < _consoleWidth; x++)
         for (int y = 0; y < _consoleHeight; y++)
         {
-            // _screenCopy[x, y] = Space;
             _screenCopy_[x, y] = new ScreenChar();
             _screenCopy_[x, y].c = Space;
             _screenCopy_[x, y].fgc = ConsoleColor.White;
@@ -245,7 +242,8 @@ internal class MyConsole
     
     private void RestoreConsole(ScreenChar[,] sc)
     {
-        // TODO Refactor for speed
+        // TODO Refactor for speed. set buf equal bufCopy and redraw screen
+        // Array.Copy(buf, bufCopy, buf.Length);
         for (int x = 0; x < _consoleWidth; x++)
         for (int y = 0; y < _consoleHeight - 1; y++)
         {
