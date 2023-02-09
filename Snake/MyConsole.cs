@@ -67,9 +67,9 @@ internal class MyConsole
         }
     }
 
-    public static int GetWidth() { return _consoleWidth; }
+    public int GetWidth() { return _consoleWidth; }
 
-    public static int GetHeight() { return _consoleHeight; }
+    public int GetHeight() { return _consoleHeight; }
 
     public void ClearConsole()
     {
