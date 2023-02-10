@@ -24,7 +24,7 @@ internal class MyConsole
         Coord dwBufferCoord, 
         ref SmallRect lpWriteRegion);
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential)] 
     public struct Coord
     {
         public short X;
