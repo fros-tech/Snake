@@ -116,7 +116,12 @@ internal class MyConsole
 
     private void ClearScreenCopy()
     {
-        // Array.Copy(buf, bufCopy);    // Need more than a shallow copy
+        // Array.Copy(buf, bufCopy);  // How to fill in a blank buf
+        for (int i = 0; i < buf.Length; i++)
+        {
+            buf[i].Attributes = (short) ( (int) (ConsoleColor.White)  | ((int) (ConsoleColor.Black) << 4));
+            buf[i].Char.AsciiChar = 32;
+        }
         for (int x = 0; x < _consoleWidth; x++)
         for (int y = 0; y < _consoleHeight; y++)
         {
@@ -219,15 +224,15 @@ internal class MyConsole
 
     public void DrawFrame(int x, int y, int Width, int Height)
     {
-        WriteAt("+", x, y);           
-        WriteAt("+", x, y + Height);
-        WriteAt("+", x + Width, y); 
-        WriteAt("+", x + Width, y + Height);
-        for (byte b = 1; b < Width; b++)  { WriteAt("-", x + b, y); WriteAt("-", x + b, y + Height); }
-        for (byte b = 1; b < Height; b++) { WriteAt("|", x, y + b); WriteAt("|", x + Width, y + b);  }
+        WriteAt('+', x, y);           
+        WriteAt('+', x, y + Height);
+        WriteAt('+', x + Width, y); 
+        WriteAt('+', x + Width, y + Height);
+        for (byte b = 1; b < Width; b++)  { WriteAt('-', x + b, y); WriteAt('-', x + b, y + Height); }
+        for (byte b = 1; b < Height; b++) { WriteAt('|', x, y + b); WriteAt('|', x + Width, y + b);  }
         for(byte i=1; i<Width; i++)
             for(byte j=1; j<Height; j++)
-                WriteAt(" ",i+x,j+y);
+                WriteAt(Space,i+x,j+y);
     }
 
     public void SaveScreen()
@@ -243,17 +248,20 @@ internal class MyConsole
     private void RestoreConsole(ScreenChar[,] sc)
     {
         // TODO Refactor for speed. set buf equal bufCopy and redraw screen
-        // Array.Copy(buf, bufCopy, buf.Length);
-        for (int x = 0; x < _consoleWidth; x++)
-        for (int y = 0; y < _consoleHeight - 1; y++)
-        {
-            WriteAt(sc[x, y].c.ToString(), x, y, sc[x, y].fgc, sc[x, y].bgc);
-        }
+        Array.Copy(bufCopy, buf, buf.Length);
+        bool b = WriteConsoleOutputW(h, buf, new Coord() { X = (short) _consoleWidth, Y = (short) _consoleHeight },
+            new Coord() { X = 0, Y = 0 }, ref rect);
+        // for (int x = 0; x < _consoleWidth; x++)
+        // for (int y = 0; y < _consoleHeight - 1; y++)
+        // {
+        //     WriteAt(sc[x, y].c.ToString(), x, y, sc[x, y].fgc, sc[x, y].bgc);
+        // }
     }
 
     private ScreenChar[,] BackupConsole()
     {  // TODO Refactor for speed
         ScreenChar[,] _tmpScrCopy = new ScreenChar[_consoleWidth, _consoleHeight];
+        Array.Copy(buf, bufCopy, buf.Length);
         for(int x=0; x<_consoleWidth; x++)
           for (int y = 0; y < _consoleHeight-1; y++)
           {
