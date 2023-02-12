@@ -38,7 +38,7 @@ internal class MyConsole
     };
 
     [StructLayout(LayoutKind.Explicit)]
-    public struct CharUnion
+    private struct CharUnion
     {
         [FieldOffset(0)] public ushort UnicodeChar;
         [FieldOffset(0)] public byte AsciiChar;
@@ -69,7 +69,6 @@ internal class MyConsole
     private static int _consoleWidth;
     private readonly object _lockWriting = new();  // locking object for when char or string is written to the console
     private static MyConsole instance;
-    private ScreenChar[,] _tempScreen;
     
     private struct ScreenChar
     {
@@ -78,7 +77,7 @@ internal class MyConsole
         public ConsoleColor bgc;
     }
 
-    private ScreenChar[,] _screenCopy_;
+    // private ScreenChar[,] _screenCopy_;
 
     private MyConsole() {}
 
@@ -107,7 +106,7 @@ internal class MyConsole
             buf = new CharInfo[_consoleWidth * _consoleHeight];
             bufCopy = new CharInfo[_consoleWidth * _consoleHeight];
             rect = new SmallRect() { Left = 0, Top = 0, Right = (short) _consoleWidth, Bottom = (short) _consoleHeight };
-            _screenCopy_ = new ScreenChar[_consoleWidth, _consoleHeight];
+            // _screenCopy_ = new ScreenChar[_consoleWidth, _consoleHeight];
             Console.Clear();
             ClearScreenCopy();
             Console.CursorVisible = false;
@@ -122,14 +121,12 @@ internal class MyConsole
             buf[i].Attributes = (short) ( (int) (ConsoleColor.White)  | ((int) (ConsoleColor.Black) << 4));
             buf[i].Char.AsciiChar = 32;
         }
-        for (int x = 0; x < _consoleWidth; x++)
-        for (int y = 0; y < _consoleHeight; y++)
-        {
-            _screenCopy_[x, y] = new ScreenChar();
-            _screenCopy_[x, y].c = Space;
-            _screenCopy_[x, y].fgc = ConsoleColor.White;
-            _screenCopy_[x, y].bgc = ConsoleColor.Black;
-        }
+    }
+
+    private void WriteCon(CharInfo[] ci)
+    {
+        bool b = WriteConsoleOutputW(h, ci, new Coord() { X = (short)_consoleWidth, Y = (short)_consoleHeight },
+            new Coord() { X = 0, Y = 0 }, ref rect);
     }
 
     public int GetWidth() { return _consoleWidth; }
@@ -138,18 +135,23 @@ internal class MyConsole
 
     public void ClearConsole()
     {
-        Console.Clear();
-        ClearScreenCopy();
+        for(int i=0; i<buf.Length; i++)
+        {
+            buf[i].Attributes = 15;
+            buf[i].Char.AsciiChar = 32;
+        }
+
+        WriteCon(buf);
     }
 
     public bool IsBlank(int x, int y)
     {
-        return (_screenCopy_[x, y].c == Space);
+        return (buf[x + y* _consoleWidth].Char.AsciiChar == 32);
     }
 
     public char CharAt(Position p)
     {
-        return _screenCopy_[p.XPos, p.YPos].c;
+        return (char) buf[p.XPos + p.YPos * _consoleWidth].Char.AsciiChar;
     }
 
     public bool IsBlank(Position p)
@@ -163,14 +165,10 @@ internal class MyConsole
         {
             for (int i = 0; i < s.Length; i++)
             {
-                buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Attributes = (short) ( (int) fgc  | ((int) bgc << 4));
-                buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Char.AsciiChar = Encoding.ASCII.GetBytes(s)[i];
-                _screenCopy_[i + aPos.XPos, aPos.YPos].c = s[i];
-                _screenCopy_[i + aPos.XPos, aPos.YPos].fgc = fgc;
-                _screenCopy_[i + aPos.XPos, aPos.YPos].bgc = bgc;
+                buf[(aPos.YPos * _consoleWidth) + aPos.XPos + i].Attributes = (short) ( (int) fgc  | ((int) bgc << 4));
+                buf[(aPos.YPos * _consoleWidth) + aPos.XPos + i].Char.AsciiChar = Encoding.ASCII.GetBytes(s)[i];
             }
-            bool b = WriteConsoleOutputW(h, buf, new Coord() { X = (short) _consoleWidth, Y = (short) _consoleHeight },
-                new Coord() { X = 0, Y = 0 }, ref rect);
+            WriteCon(buf);
         }
     }
 
@@ -180,11 +178,7 @@ internal class MyConsole
         {
             buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Attributes = (short) ( (int) fgc  | ((int) bgc << 4));
             buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Char.UnicodeChar = (ushort)c;
-            bool b = WriteConsoleOutputW(h, buf, new Coord() { X = (short) _consoleWidth, Y = (short) _consoleHeight },
-                new Coord() { X = 0, Y = 0 }, ref rect);
-            _screenCopy_[aPos.XPos, aPos.YPos].c = c;
-            _screenCopy_[aPos.XPos, aPos.YPos].fgc = fgc;
-            _screenCopy_[aPos.XPos, aPos.YPos].bgc = bgc;
+            WriteCon(buf);
         }
     }
 
@@ -217,11 +211,6 @@ internal class MyConsole
         WriteAt(c, aPos, Console.ForegroundColor, Console.BackgroundColor);
     }
 
-    public void InvertAt(Position pos)
-    {
-        WriteAt(_screenCopy_[pos.XPos, pos.YPos].c,pos,_screenCopy_[pos.XPos, pos.YPos].bgc,_screenCopy_[pos.XPos, pos.YPos].fgc );
-    }
-
     public void DrawFrame(int x, int y, int Width, int Height)
     {
         WriteAt('+', x, y);           
@@ -237,42 +226,25 @@ internal class MyConsole
 
     public void SaveScreen()
     {
-        _tempScreen = BackupConsole();
+        // _tempScreen = BackupConsole();
+        BackupConsole();
     }
 
     public void RestoreScreen()
     {
-        RestoreConsole(_tempScreen);
+        // RestoreConsole(_tempScreen);
+        RestoreConsole();
     }
     
-    private void RestoreConsole(ScreenChar[,] sc)
+    private void RestoreConsole()  // ScreenChar[,] sc
     {
-        // TODO Refactor for speed. set buf equal bufCopy and redraw screen
         Array.Copy(bufCopy, buf, buf.Length);
-        bool b = WriteConsoleOutputW(h, buf, new Coord() { X = (short) _consoleWidth, Y = (short) _consoleHeight },
-            new Coord() { X = 0, Y = 0 }, ref rect);
-        // for (int x = 0; x < _consoleWidth; x++)
-        // for (int y = 0; y < _consoleHeight - 1; y++)
-        // {
-        //     WriteAt(sc[x, y].c.ToString(), x, y, sc[x, y].fgc, sc[x, y].bgc);
-        // }
+        WriteCon(buf);
     }
 
-    private ScreenChar[,] BackupConsole()
-    {  // TODO Refactor for speed
-        ScreenChar[,] _tmpScrCopy = new ScreenChar[_consoleWidth, _consoleHeight];
+    private void BackupConsole() // ScreenChar[,]
+    {
         Array.Copy(buf, bufCopy, buf.Length);
-        for(int x=0; x<_consoleWidth; x++)
-          for (int y = 0; y < _consoleHeight-1; y++)
-          {
-              _tmpScrCopy[x, y] = new ScreenChar
-              {
-                  c = _screenCopy_[x, y].c, 
-                  fgc = _screenCopy_[x, y].fgc, 
-                  bgc = _screenCopy_[x, y].bgc
-              };
-          }
-        return _tmpScrCopy;
     }
 
     public ConsoleKey WaitForKey(ConsoleKey[] keys)
@@ -284,13 +256,13 @@ internal class MyConsole
     
     public ConsoleKey PopUpQuestion(int Width, int Height, String message, ConsoleKey[] ValidKeys)
     {
-        ScreenChar[,] _tempScreenCopy = BackupConsole();
+        BackupConsole();
         int x = (_consoleWidth / 2) - (Width / 2);
         int y = (_consoleHeight / 2) - (Height / 2);
         DrawFrame(x, y, Width, Height);
         WriteAt(message, x+2, y+2);
         ConsoleKey k = WaitForKey(ValidKeys);
-        RestoreConsole(_tempScreenCopy);
-        return k;
+        RestoreConsole();
+       return k;
     }
 }

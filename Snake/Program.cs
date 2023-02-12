@@ -7,7 +7,7 @@ namespace Snake
         // TODO Add animation to portals and treats when they appear
         // TODO Refine Game Over/retry? sequence. Both UX and Post mortem
 
-        private readonly int _numSnakes = 2;  // Initial expected number of snakes
+        private const int _numSnakes = 2;  // Initial expected number of snakes
         private MyConsole console;
         private Board board;
         private readonly List<Snake> _snakes = new List<Snake>();
