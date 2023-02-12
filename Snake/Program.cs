@@ -7,7 +7,7 @@ namespace Snake
         // TODO Add animation to portals and treats when they appear
         // TODO Refine Game Over/retry? sequence. Both UX and Post mortem
 
-        private const int _numSnakes = 2;  // Initial expected number of snakes
+        private const int _numSnakes = 1;  // Initial expected number of snakes
         private MyConsole console;
         private Board board;
         private readonly List<Snake> _snakes = new List<Snake>();
@@ -33,20 +33,21 @@ namespace Snake
             bool _paused = state.GamePaused;
             Thread.Sleep(400);
             state.GamePaused = true;
-            console.SaveScreen();
-            console.WriteAt("+------------------------------------------------------------+", 5, 5,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAt("+------------------------- Snake V1.0 -----------------------+", 5, 6,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAt("+--  CONTROLS:                               TREATS:       --+", 5, 7,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAt("+--  Snake #0   Use 'A', 'W', 'S', 'D'       '~' 1 point   --+", 5, 8,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAt("+--  Snake #1   Use Arrow keys               '$' 2 points  --+", 5, 9,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAt("+--  Snake #2   Use Numrpad keys             '£' 3 points  --+", 5, 10, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAt("+--  Press 'Q' or <Esc> to quit game         '#' 5 points  --+", 5, 11, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAt("+--                                                        --+", 5, 12, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAt("+--  PORTALS: '@'                                          --+", 5, 13, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAt("+------------------------------------------------------------+", 5, 14, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAt("+----------------- <Esc> to leave help screen ---------------+", 5, 15, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.BackupConsole();
+            console.WriteAtBuf("+------------------------------------------------------------+", 5, 5,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("+------------------------- Snake V1.0 -----------------------+", 5, 6,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("+--  CONTROLS:                               TREATS:       --+", 5, 7,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("+--  Snake #0   Use 'A', 'W', 'S', 'D'       '~' 1 point   --+", 5, 8,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("+--  Snake #1   Use Arrow keys               '$' 2 points  --+", 5, 9,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("+--  Snake #2   Use Numrpad keys             '£' 3 points  --+", 5, 10, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("+--  Press 'Q' or <Esc> to quit game         '#' 5 points  --+", 5, 11, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("+--                                                        --+", 5, 12, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("+--  PORTALS: '@'                                          --+", 5, 13, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("+------------------------------------------------------------+", 5, 14, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("+----------------- <Esc> to leave help screen ---------------+", 5, 15, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteCon();
             ConsoleKey k = console.WaitForKey(new [] {ConsoleKey.Escape});
-            console.RestoreScreen();
+            console.RestoreConsole();
             state.GamePaused = _paused;
         }
         

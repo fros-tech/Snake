@@ -25,7 +25,7 @@ internal class MyConsole
         ref SmallRect lpWriteRegion);
 
     [StructLayout(LayoutKind.Sequential)] 
-    public struct Coord
+    private struct Coord
     {
         public short X;
         public short Y;
@@ -38,14 +38,14 @@ internal class MyConsole
     };
 
     [StructLayout(LayoutKind.Explicit)]
-    private struct CharUnion
+    public struct CharUnion
     {
         [FieldOffset(0)] public ushort UnicodeChar;
         [FieldOffset(0)] public byte AsciiChar;
     }
 
     [StructLayout(LayoutKind.Explicit)]
-    private struct CharInfo
+    public struct CharInfo
     {
         [FieldOffset(0)] public CharUnion Char;
         [FieldOffset(2)] public short Attributes;
@@ -123,6 +123,11 @@ internal class MyConsole
         }
     }
 
+    public void WriteCon()
+    {
+        WriteCon(buf);
+    }
+    
     private void WriteCon(CharInfo[] ci)
     {
         bool b = WriteConsoleOutputW(h, ci, new Coord() { X = (short)_consoleWidth, Y = (short)_consoleHeight },
@@ -154,34 +159,55 @@ internal class MyConsole
         return (char) buf[p.XPos + p.YPos * _consoleWidth].Char.AsciiChar;
     }
 
-    public bool IsBlank(Position p)
+    public void WriteAtBuf(string s, int x, int y, ConsoleColor fgc, ConsoleColor bgc)
     {
-        return IsBlank(p.XPos, p.YPos);
+        Position aPos = new Position(x, y);
+        WriteAtBuf(s, aPos, fgc, bgc);
     }
 
-    private void WriteAt(string s, Position aPos, ConsoleColor fgc, ConsoleColor bgc)
+    private void WriteAtBuf(string s, Position aPos, ConsoleColor fgc, ConsoleColor bgc)
     {
-        lock (_lockWriting)  // Only one thread at a time here
-        {
             for (int i = 0; i < s.Length; i++)
             {
                 buf[(aPos.YPos * _consoleWidth) + aPos.XPos + i].Attributes = (short) ( (int) fgc  | ((int) bgc << 4));
                 buf[(aPos.YPos * _consoleWidth) + aPos.XPos + i].Char.AsciiChar = Encoding.ASCII.GetBytes(s)[i];
             }
-            WriteCon(buf);
+    }
+    
+    
+    private void WriteAt(string s, Position aPos, ConsoleColor fgc, ConsoleColor bgc)
+    {
+        lock (_lockWriting)  // Only one thread at a time here
+        {
+          WriteAtBuf(s, aPos, fgc, bgc);
+          WriteCon(buf);
         }
+    }
+
+    public void WriteAtBuf(char c, Position aPos, ConsoleColor fgc, ConsoleColor bgc)
+    {
+        buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Attributes = (short) ( (int) fgc  | ((int) bgc << 4));
+        buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Char.UnicodeChar = (ushort)c;
+    }
+
+    public void WriteAtBuf(char c, int x, int y, ConsoleColor fgc, ConsoleColor bgc)
+    {
+        buf[(y * _consoleWidth) + x].Attributes = (short) ( (int) fgc  | ((int) bgc << 4));
+        buf[(y * _consoleWidth) + x].Char.UnicodeChar = (ushort)c;
     }
 
     public void WriteAt(char c, Position aPos, ConsoleColor fgc, ConsoleColor bgc)
     {
         lock (_lockWriting)  // Only one thread at a time here
         {
-            buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Attributes = (short) ( (int) fgc  | ((int) bgc << 4));
-            buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Char.UnicodeChar = (ushort)c;
+            WriteAtBuf(c, aPos, fgc, bgc);
+            // buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Attributes = (short) ( (int) fgc  | ((int) bgc << 4));
+            // buf[(aPos.YPos * _consoleWidth) + aPos.XPos].Char.UnicodeChar = (ushort)c;
             WriteCon(buf);
         }
     }
 
+    
     public void WriteAt(string s, int x, int y)
     {
         Position p = new Position(x, y);
@@ -211,38 +237,26 @@ internal class MyConsole
         WriteAt(c, aPos, Console.ForegroundColor, Console.BackgroundColor);
     }
 
-    public void DrawFrame(int x, int y, int Width, int Height)
+    public void DrawFrame(int x, int y, int Width, int Height, ConsoleColor fgc, ConsoleColor bgc)
     {
-        WriteAt('+', x, y);           
-        WriteAt('+', x, y + Height);
-        WriteAt('+', x + Width, y); 
-        WriteAt('+', x + Width, y + Height);
-        for (byte b = 1; b < Width; b++)  { WriteAt('-', x + b, y); WriteAt('-', x + b, y + Height); }
-        for (byte b = 1; b < Height; b++) { WriteAt('|', x, y + b); WriteAt('|', x + Width, y + b);  }
+        WriteAtBuf('+', x, y, fgc, bgc);           
+        WriteAtBuf('+', x, y + Height, fgc, bgc);
+        WriteAtBuf('+', x + Width, y, fgc, bgc); 
+        WriteAtBuf('+', x + Width, y + Height, fgc, bgc);
+        for (byte b = 1; b < Width; b++)  { WriteAtBuf('-', x + b, y, fgc, bgc); WriteAtBuf('-', x + b, y + Height, fgc, bgc); }
+        for (byte b = 1; b < Height; b++) { WriteAtBuf('|', x, y + b, fgc, bgc); WriteAtBuf('|', x + Width, y + b, fgc, bgc);  }
         for(byte i=1; i<Width; i++)
             for(byte j=1; j<Height; j++)
-                WriteAt(Space,i+x,j+y);
+                WriteAtBuf(Space,i+x,j+y, fgc, bgc);
     }
 
-    public void SaveScreen()
-    {
-        // _tempScreen = BackupConsole();
-        BackupConsole();
-    }
-
-    public void RestoreScreen()
-    {
-        // RestoreConsole(_tempScreen);
-        RestoreConsole();
-    }
-    
-    private void RestoreConsole()  // ScreenChar[,] sc
+    public void RestoreConsole()  // ScreenChar[,] sc
     {
         Array.Copy(bufCopy, buf, buf.Length);
         WriteCon(buf);
     }
 
-    private void BackupConsole() // ScreenChar[,]
+    public void BackupConsole() // ScreenChar[,]
     {
         Array.Copy(buf, bufCopy, buf.Length);
     }
@@ -259,8 +273,8 @@ internal class MyConsole
         BackupConsole();
         int x = (_consoleWidth / 2) - (Width / 2);
         int y = (_consoleHeight / 2) - (Height / 2);
-        DrawFrame(x, y, Width, Height);
-        WriteAt(message, x+2, y+2);
+        DrawFrame(x, y, Width, Height, ConsoleColor.Yellow, ConsoleColor.Green);
+        WriteAt(message, x+2, y+2, ConsoleColor.Yellow, ConsoleColor.Green);
         ConsoleKey k = WaitForKey(ValidKeys);
         RestoreConsole();
        return k;
