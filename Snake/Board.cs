@@ -66,10 +66,12 @@
             // margin is the desired distance to the edge of the board
             Position tempPos = new Position();
             int count = 0;
+            int w = _console.GetWidth();
+            int h = _console.GetHeight();
             do
             {
-                tempPos.XPos = _rand.Next(1+margin,_console.GetWidth()-margin);
-                tempPos.YPos = _rand.Next(1+margin,_console.GetHeight()-margin);
+                tempPos.XPos = _rand.Next(1+margin,w-margin);
+                tempPos.YPos = _rand.Next(1+margin,h-margin);
                 if (_console.IsBlank(tempPos.XPos, tempPos.YPos))
                 {
                     pos = tempPos;
@@ -85,15 +87,26 @@
         {
             for (int i=0; i < _treats.Count; i++)
             {
-                if(_treats[i].Position.XPos== pos.XPos)
-                    if (_treats[i].Position.YPos == pos.YPos)
+                if (_treats[i].Position.XPos != pos.XPos)  // Fail early!
+                    continue;
+                if (_treats[i].Position.YPos != pos.YPos)
+                    continue;
+                {
+                    lock (_treatLock)
                     {
-                        lock (_treatLock)
-                        {
-                            _console.WriteAt(' ', _treats[i].Position);
-                            _treats.RemoveAt(i);
-                        }
+                        _console.WriteAt(' ', _treats[i].Position);
+                        _treats.RemoveAt(i);
                     }
+                }
+                // if(_treats[i].Position.XPos== pos.XPos)
+                //     if (_treats[i].Position.YPos == pos.YPos)
+                //     {
+                //         lock (_treatLock)
+                //         {
+                //             _console.WriteAt(' ', _treats[i].Position);
+                //             _treats.RemoveAt(i);
+                //         }
+                //     }
             }
         }
         
@@ -105,7 +118,7 @@
                 lock (_treatLock)
                 {
                     Treat t = Treat.GenerateTreat(tempPos);
-                    _console.WriteAt(t.Character, t.GetPosition(), t.FgColor, t.BgColor);
+                    _console.WriteAt(t.Character, t.Position, t.FgColor, t.BgColor);
                     _treats.Add(t);
                 }
             }
@@ -132,7 +145,7 @@
         {
             for (int i=0; i < _portals.Count; i++)
             {
-                if (_portals[i].Position.XPos != pos.XPos) continue;
+                if (_portals[i].Position.XPos != pos.XPos) continue;  // Fail early!
                 if (_portals[i].Position.YPos != pos.YPos) continue;
                 lock (_portalLock)
                 {
@@ -145,10 +158,9 @@
         private Portal ChoosePortal(Position p)  // Choose portal at other position than p
         {
             int i;
-            do
-            {
-                i = _rand.Next(_portals.Count);
-            } while ((_portals[i].Position.XPos == p.XPos && _portals[i].Position.YPos == p.YPos));
+            do 
+            { i = _rand.Next(_portals.Count); }
+            while ((_portals[i].Position.XPos == p.XPos && _portals[i].Position.YPos == p.YPos));
             // Find a random portal different from the one at Position p
             return _portals[i];
         }
@@ -160,9 +172,7 @@
                 if (!_state.GamePaused && _boardActivated)
                 {
                     AddPortal();
-                    if(_portals.Count < 2)  // There must be at least two Portal at any given time
-                        AddPortal();
-                    for (int i = 0; i < _portals.Count; i++)
+                    for (int i = 0; i < _portals.Count; i++)  // Check if any portals need to be removed
                     {   // Tempting to use foreach, but will cause collection modified exception
                         _portals[i].lifeTime += _state.TreatDelay;
                         if (_portals[i].lifeTime <= _state.maxPortalLifetime) continue;
@@ -203,31 +213,31 @@
         {
             foreach(Treat t in _treats) 
             {
-                if ((t.GetPosition().XPos == position.XPos) && (t.GetPosition().YPos == position.YPos))
+                if ((t.Position.XPos == position.XPos) && (t.Position.YPos == position.YPos))
                     return t.NumPoints;
             }
             return 0;
         }
 
         public ObstacleTypes CheckForCollision(Position checkPos, out int TreatPoints, out Position PortalPosition)
-            // Checks a position and returns a plethora of data depending on what is found at checkPos
-            // Possibilities are BLANK, TREAT, WALL, PORTAL, SNAKE(Own or Other)
+        // Checks a position and returns a plethora of data depending on what is found at checkPos
+        // Possibilities are BLANK, TREAT, WALL, PORTAL, SNAKE(Own or Other)
         {
             char c = _console.CharAt(checkPos);
             PortalPosition = null;
             TreatPoints = 0;
-            if (c == MyConsole.Space) // Ok now we have to get to work         // SPACE
+            if (c == MyConsole.Space) // Ok now we have to get to work     // SPACE
                 return ObstacleTypes.SPACE;
-            if (Treat.TreatChars.Contains(c))                                  // TREAT
+            if (Treat.TreatChars.Contains(c))                              // TREAT
             {
                 TreatPoints = this.TreatPoints(checkPos);
                 return ObstacleTypes.TREAT;
             }
-            if (WallChars.Contains(c))                                         // WALL
+            if (WallChars.Contains(c))                                     // WALL
                 return ObstacleTypes.WALL;
-            if (c is Snake.SnakeBodyChar or Snake.SnakeHeadChar)          // SNAKE
+            if (c is Snake.SnakeBodyChar or Snake.SnakeHeadChar)           // SNAKE
                 return ObstacleTypes.SNAKE;
-            if (c != Portal.PortalChar) return ObstacleTypes.OTHER; // We really shouldn't end up here
+            if (c != Portal.PortalChar) return ObstacleTypes.OTHER;        // We really shouldn't end up here
             // If we got here, it has to be a portal
             PortalPosition = ChoosePortal(checkPos).GetPosition();         // PORTAL
             return ObstacleTypes.PORTAL;

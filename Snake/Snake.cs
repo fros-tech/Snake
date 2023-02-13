@@ -58,8 +58,7 @@
         {
             // Needs to do some finagling and fiddling to place more snakes on the board
             // Places snakes relative to each corner and with a direction towards the middle of the board
-            // to give the player a chance to adjust before the snake slams into the border or
-            // another snake. Apologies for code that may offend the eye.
+            // to give the player a chance to adjust before the snake slams into the border or another snake.
             int initXPos, initYPos;
             _positions.Clear();  // If we ran game earlier we need to reset
             switch (_snakeId)
@@ -75,7 +74,7 @@
                 {
                     initXPos = _console.GetWidth()-InitialSnakeLength-5; initYPos = 5;
                     _dir = Directions.Left;
-                    for (int i = 0; i < InitialSnakeLength; i++) { _positions.Add(new Position(initXPos - i, initYPos)); }
+                    for (int i = 0; i < InitialSnakeLength; i++) { _positions.Add(new Position(initXPos - i, initYPos + 1)); }
                     break;
                 }
                 case 2:    // Starts in lower right corner
@@ -129,8 +128,6 @@
                         Directions.Right => new Position(_positions.Last().XPos + 1, _positions.Last().YPos),
                         _ => _nextPos
                     };
-                    // Let board do the checking in the future.
-                    // return will be either PORTAL, BLANK, WALL, OTHER SNAKE, OR TREAT POINTS
                     Board.ObstacleTypes Obstacle =
                         _board.CheckForCollision(_nextPos, out int TreatPoints, out Position PortalPosition);
                     switch (Obstacle)
@@ -169,6 +166,10 @@
                             _board.RemovePortal(_nextPos);        // The portal we are entering into
                             _nextPos = PortalPosition;            // Next pos is moving out at next portals position
                             break;
+                        }
+                        case Board.ObstacleTypes.OTHER:
+                        {
+                            throw new NotImplementedException();  // Really shouldn't get here at any time !!
                         }
                     }
                     if (!_state.GameOver)  // Let's move the head of the snake to the next position

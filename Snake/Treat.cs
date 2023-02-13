@@ -31,8 +31,5 @@ namespace Snake
             int treatType = rand.Next(0, TreatChars.Length);
             return new Treat(p, TreatChars[treatType], TreatPoints[treatType], FgColors[treatType], BgColors[treatType]);
         }
-
-        public Position GetPosition() { return Position; }
-        
     }
 }

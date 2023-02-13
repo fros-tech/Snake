@@ -7,7 +7,7 @@ namespace Snake
         // TODO Add animation to portals and treats when they appear
         // TODO Refine Game Over/retry? sequence. Both UX and Post mortem
 
-        private const int _numSnakes = 2;  // Initial expected number of snakes
+        private const int _numSnakes = 1;  // Initial expected number of snakes. Maximum is 3
         private MyConsole console;
         private Board board;
         private readonly List<Snake> _snakes = new List<Snake>();
@@ -94,7 +94,6 @@ namespace Snake
         private void ResetSnakes() { foreach (Snake s in _snakes) { s.ResetSnake();} }
         private void DeActivateSnakes() { foreach (Snake s in _snakes) { s.DeActivate();} Thread.Sleep(100); }
         private void ActivateSnakes() { foreach (Snake s in _snakes) { s.Activate();} }
-        private void KillSnakes() { foreach (Snake s in _snakes) { s.KillSnake();}}
         
         private void Go()
         {
@@ -107,7 +106,7 @@ namespace Snake
                     if (Console.KeyAvailable)
                     {
                         ConsoleKey keyPressed = Console.ReadKey(true).Key;
-                        foreach(Snake s in _snakes)
+                        foreach(Snake s in _snakes)     // Update the snakes directions
                             s.SetDirection(keyPressed);
                         switch (keyPressed)             // true causes the console NOT to echo the key pressed onto the console
                         {
@@ -117,7 +116,7 @@ namespace Snake
                             case ConsoleKey.H:          { ShowHelp(); break; }
                         }
                     }
-                    GameStatus();                       // Update gamestats on the console
+                    GameStatus();                       // Update game stats on the console
                     Thread.Sleep(50);    // Give the CPU a break
                 } while (!state.GameOver);
                 board.DeActivateBoard();
