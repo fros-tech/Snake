@@ -269,7 +269,7 @@ internal class MyConsole
     }
     
     public ConsoleKey PopUpQuestion(int Width, int Height, String message, ConsoleKey[] ValidKeys)
-    {
+    {  // TODO Needs work to stay in use
         BackupConsole();
         int x = (_consoleWidth / 2) - (Width / 2);
         int y = (_consoleHeight / 2) - (Height / 2);
@@ -277,6 +277,6 @@ internal class MyConsole
         WriteAt(message, x+2, y+2, ConsoleColor.Yellow, ConsoleColor.Green);
         ConsoleKey k = WaitForKey(ValidKeys);
         RestoreConsole();
-       return k;
+        return k;
     }
 }

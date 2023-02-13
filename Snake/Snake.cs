@@ -144,8 +144,8 @@
                                 }
                                 else
                                 {
-                                    _state.SnakeDelay = Math.Max(GameState.MinSnakeDelay, _state.SnakeDelay - SnakeLength());
-                                    _state.TreatDelay = Math.Max(GameState.MinTreatDelay, _state.TreatDelay - SnakeLength() * 10);
+                                    _state.SnakeDelay = Math.Max(GameState.MinSnakeDelay, _state.SnakeDelay - SnakeLength());      // Increase games speed as
+                                    _state.TreatDelay = Math.Max(GameState.MinTreatDelay, _state.TreatDelay - SnakeLength() * 10); // snake length increases
                                     _linksToBeAdded--;
                                 }
                                 break;

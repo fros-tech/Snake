@@ -16,7 +16,7 @@ namespace Snake
         private Thread boardThread;
         
         private bool GoAgain()
-        {
+        {  // TODO Needs work
             console.BackupConsole();
             console.WriteAtBuf("+----------------------------------------------------------------------------------------+", 5, 5,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
             console.WriteAtBuf("+--------------------------------------- Stats  -----------------------------------------+", 5, 6,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
