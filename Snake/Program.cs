@@ -7,7 +7,7 @@ namespace Snake
         // TODO Add animation to portals and treats when they appear
         // TODO Refine Game Over/retry? sequence. Both UX and Post mortem
 
-        private const int _numSnakes = 1;  // Initial expected number of snakes
+        private const int _numSnakes = 2;  // Initial expected number of snakes
         private MyConsole console;
         private Board board;
         private readonly List<Snake> _snakes = new List<Snake>();
@@ -15,27 +15,32 @@ namespace Snake
         private GameState state;
         private Thread boardThread;
         
-        private void ShowEndGameStats()
-        {
-            console.WriteAt("* GAME OVER *", 10, 10);
-            for (int i=0; i < _snakes.Count; i++) { console.WriteAt(" Snake #"+i+ ": "+_snakes[i].SnakeLength(),10, 11+i); }
-            console.WriteAt(state.CauseOfDeath, 10, 15);
-            console.WriteAt("Winner is snake #: "+state.LongestSnake+", Length: "+state.MaxSnakeLength, 10, 16);
-        }
-
         private bool GoAgain()
         {
-            return console.PopUpQuestion(20, 4, "Spil igen (J/N):", new [] {ConsoleKey.J, ConsoleKey.N}) == ConsoleKey.J;
+            console.BackupConsole();
+            console.WriteAtBuf("+----------------------------------------------------------------------------------------+", 5, 5,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("+--------------------------------------- Stats  -----------------------------------------+", 5, 6,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("+--  GAME ENDED BECAUSE: "+state.CauseOfDeath+" --+",5, 7,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("+--  Snake lengths                                                                     --+", 5, 8,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            for (int i=0; i < _snakes.Count; i++) { console.WriteAtBuf("+--   Snake# : "+i+",  "+_snakes[i].SnakeLength()+"                                                                   --+",5, 9+i, ConsoleColor.Yellow, ConsoleColor.DarkGreen); }
+            console.WriteAtBuf("+--                                                                                    --+", 5, 12, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("+--  Winner is snake #: "+state.LongestSnake +"                                                              --+", 5, 11, ConsoleColor.Yellow, ConsoleColor.Green);
+            console.WriteAtBuf("+----------------------------------------------------------------------------------------+", 5, 13, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteCon();
+            ConsoleKey k = console.WaitForKey(new [] {ConsoleKey.J, ConsoleKey.N});
+            console.RestoreConsole();
+            return (k == ConsoleKey.J);
         }
+
 
         private void ShowHelp()
         {
             bool _paused = state.GamePaused;
-            Thread.Sleep(400);
+            Thread.Sleep(400);  // Need threads to discover the new state
             state.GamePaused = true;
             console.BackupConsole();
             console.WriteAtBuf("+------------------------------------------------------------+", 5, 5,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAtBuf("+------------------------- Snake V1.0 -----------------------+", 5, 6,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("+------------------------- Snake V2.0 -----------------------+", 5, 6,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
             console.WriteAtBuf("+--  CONTROLS:                               TREATS:       --+", 5, 7,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
             console.WriteAtBuf("+--  Snake #0   Use 'A', 'W', 'S', 'D'       '~' 1 point   --+", 5, 8,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
             console.WriteAtBuf("+--  Snake #1   Use Arrow keys               '$' 2 points  --+", 5, 9,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
@@ -47,8 +52,8 @@ namespace Snake
             console.WriteAtBuf("+----------------- <Esc> to leave help screen ---------------+", 5, 15, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
             console.WriteCon();
             ConsoleKey k = console.WaitForKey(new [] {ConsoleKey.Escape});
-            console.RestoreConsole();
             state.GamePaused = _paused;
+            console.RestoreConsole();
         }
         
         private void GameStatus()
@@ -117,7 +122,6 @@ namespace Snake
                 } while (!state.GameOver);
                 board.DeActivateBoard();
                 DeActivateSnakes();
-                ShowEndGameStats();                      // Show final gamestats
                 state.EndProgram = !GoAgain();           // Check if we are going to have another go at it
             } while (!state.EndProgram);
             Console.Clear();

@@ -111,7 +111,7 @@
             if ((_console.CharAt(_nextPos) == SnakeHeadChar) || (_console.CharAt(_nextPos) == SnakeBodyChar))
                 _state.CauseOfDeath = "Snake #"+this._snakeId+" became a cannibal. Started eating snake! Yukkk! ....";
             else
-                _state.CauseOfDeath = "Snake #"+this._snakeId+" hit an obstacle and died a miserable death. RIP.";
+                _state.CauseOfDeath = "Snake #"+this._snakeId+" hit an obstacle and died a miserable death. RIP.    ";
         }
 
         private void MoveSnake()
