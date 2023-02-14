@@ -62,6 +62,7 @@ namespace Snake
             console.WriteAt(" Snake Delay  : " + state.SnakeDelay + " ", 2, ch);
             console.WriteAt(" Treat Delay  : " + state.TreatDelay + " ", 27, ch);
             for (int i=0; i < _snakes.Count; i++) { console.WriteAt(" Snake #"+i+ ": "+_snakes[i].SnakeLength()+" ",52+(i*15), ch); }
+            console.WriteAt("Fluke :"+state.Fluke, 70, ch);
         }
 
         private void SetupGame()
@@ -116,6 +117,7 @@ namespace Snake
                             case ConsoleKey.H:          { ShowHelp(); break; }
                         }
                     }
+                    board.Fluke();
                     GameStatus();                       // Update game stats on the console
                     Thread.Sleep(50);    // Give the CPU a break
                 } while (!state.GameOver);

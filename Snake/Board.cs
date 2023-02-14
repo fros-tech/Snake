@@ -3,6 +3,7 @@
     internal class Board
     {
         private const byte NumInitialTreats = 12;
+        public const int FlukeTimerDelay = 15000;  // 15 seconds
         private readonly List<Treat> _treats;
         private readonly List<Portal> _portals;
         private readonly MyConsole _console;
@@ -12,6 +13,7 @@
         private readonly object _portalLock = new();
         private Thread _treatThread;
         private Thread _portalThread;
+        private System.Timers.Timer _flukeTimer;
 
         public enum ObstacleTypes { PORTAL = 0, SPACE = 1, WALL = 2, SNAKE = 3, TREAT = 4, OTHER = 5 };
         private static readonly char[] WallChars = { '-', '|' };
@@ -29,6 +31,7 @@
             _treatThread.Start();
             _portalThread = new Thread(AddPortals);
             _portalThread.Start();
+            _flukeTimer = new System.Timers.Timer(5000);
         }
 
         public void ResetBoard()
@@ -36,6 +39,7 @@
             int ch = _console.GetHeight();
             int cw = _console.GetWidth();
             _treats.Clear();
+            _flukeTimer.Stop();
             _console.WriteAt('+', 0, 0);
             _console.WriteAt('+', 0, ch - 2);
             _console.WriteAt('+', cw - 1, 0);
@@ -98,15 +102,6 @@
                         _treats.RemoveAt(i);
                     }
                 }
-                // if(_treats[i].Position.XPos== pos.XPos)
-                //     if (_treats[i].Position.YPos == pos.YPos)
-                //     {
-                //         lock (_treatLock)
-                //         {
-                //             _console.WriteAt(' ', _treats[i].Position);
-                //             _treats.RemoveAt(i);
-                //         }
-                //     }
             }
         }
         
@@ -196,8 +191,8 @@
                     AddTreat();
                     for (int i = 0; i < _treats.Count; i++)
                     {   // Tempting to use foreach, but will cause collection modified exception
-                        _treats[i].lifeTime += _state.TreatDelay;
-                        if (_treats[i].lifeTime <= _state.maxTreatLifetime) continue;
+                        _treats[i].lifeTime -= _state.TreatDelay / (10 + _state.Fluke);  // Fluke affects treat timeout
+                        if (_treats[i].lifeTime > 0) continue;
                         lock (_treatLock)
                         {
                             _console.WriteAt(' ', _treats[i].Position);
@@ -219,6 +214,28 @@
             return 0;
         }
 
+        public void ResetFluke()
+        {
+            _state.Fluke = 0;
+            _flukeTimer.Stop();
+        }
+        public void Fluke()
+        {
+            if (_state.Fluke == 0)
+            {
+                _flukeTimer.Interval = FlukeTimerDelay;
+                _flukeTimer.Elapsed += (sender, e) => ResetFluke();
+                if (_rand.Next(100) > 10)
+                {
+                    if (_rand.Next(100) > 25)
+                        _state.Fluke = 20;
+                    else
+                        _state.Fluke = -5;
+                }
+
+                _flukeTimer.Start();
+            }
+        }
         public ObstacleTypes CheckForCollision(Position checkPos, out int TreatPoints, out Position PortalPosition)
         // Checks a position and returns a plethora of data depending on what is found at checkPos
         // Possibilities are BLANK, TREAT, WALL, PORTAL, SNAKE(Own or Other)
