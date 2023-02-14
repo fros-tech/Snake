@@ -80,6 +80,7 @@ namespace Snake
             state.Reset();
             console.ClearConsole();
             board.ResetBoard();
+            board.ResetFluke();
             ResetSnakes();
             ActivateSnakes();
             board.ActivateBoard();
@@ -111,6 +112,7 @@ namespace Snake
                             case ConsoleKey.Spacebar:   { state.TogglePaused(); break; } // PauseGame
                             case ConsoleKey.H:          { ShowHelp(); break; }
                         }
+                        board.Fluke();
                     }
                     GameStatus();                       // Update game stats on the console
                     Thread.Sleep(50);    // Give the CPU a break

@@ -1,4 +1,6 @@
-﻿namespace Snake
+﻿using System.Timers;
+
+namespace Snake
 {
     internal class Board
     {
@@ -12,6 +14,7 @@
         private readonly object _portalLock = new();
         private Thread _treatThread;
         private Thread _portalThread;
+        private System.Timers.Timer _flukeTimer;
 
         public enum ObstacleTypes { PORTAL = 0, SPACE = 1, WALL = 2, SNAKE = 3, TREAT = 4, OTHER = 5 };
         private static readonly char[] WallChars = { '-', '|' };
@@ -29,6 +32,7 @@
             _treatThread.Start();
             _portalThread = new Thread(AddPortals);
             _portalThread.Start();
+            _flukeTimer = new System.Timers.Timer(5000);
         }
 
         public void ResetBoard()
@@ -207,6 +211,29 @@
                     return t.NumPoints;
             }
             return 0;
+        }
+
+        public void ResetFluke()
+        {
+            _state.Fluke = 0;
+            _flukeTimer.Stop();
+        }
+        public void Fluke()
+        {
+            if (_state.Fluke == 0)
+            {
+                _flukeTimer.Interval = 5000;
+                _flukeTimer.Elapsed += (sender, e) => ResetFluke();
+                if (_rand.Next() > 0.1)
+                {
+                    if (_rand.Next() > 0.5)
+                        _state.Fluke = 20;
+                    else
+                        _state.Fluke = -5;
+                }
+
+                _flukeTimer.Start();
+            }
         }
 
         public ObstacleTypes CheckForCollision(Position checkPos, out int TreatPoints, out Position PortalPosition)
