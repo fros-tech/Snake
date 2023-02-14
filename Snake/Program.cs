@@ -39,7 +39,7 @@ namespace Snake
             console.WriteAtBuf("+--  CONTROLS:                               TREATS:       --+", 5, 7,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
             console.WriteAtBuf("+--  Snake #0   Use 'A', 'W', 'S', 'D'       '~' 1 point   --+", 5, 8,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
             console.WriteAtBuf("+--  Snake #1   Use Arrow keys               '$' 2 points  --+", 5, 9,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAtBuf("+--  Snake #2   Use Numrpad keys             '£' 3 points  --+", 5, 10, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("+--  Snake #2   Use Num pad keys             '£' 3 points  --+", 5, 10, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
             console.WriteAtBuf("+--  Press 'Q' or <Esc> to quit game         '#' 5 points  --+", 5, 11, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
             console.WriteAtBuf("+--                                                        --+", 5, 12, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
             console.WriteAtBuf("+--  PORTALS: '@'                                          --+", 5, 13, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
@@ -112,12 +112,12 @@ namespace Snake
                             case ConsoleKey.H:          { ShowHelp(); break; }
                         }
                     }
-                    GameStatus();                       // Update gamestats on the console
+                    GameStatus();                       // Update game stats on the console
                     Thread.Sleep(50);    // Give the CPU a break
                 } while (!state.GameOver);
                 board.DeActivateBoard();
                 DeActivateSnakes();
-                ShowEndGameStats();                      // Show final gamestats
+                ShowEndGameStats();                      // Show final game stats
                 state.EndProgram = !GoAgain();           // Check if we are going to have another go at it
             } while (!state.EndProgram);
             Console.Clear();

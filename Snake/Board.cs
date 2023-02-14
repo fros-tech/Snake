@@ -81,6 +81,72 @@
             return false;
         }
 
+        public void RemovePortal(Position pos)
+        {
+            for (int i=0; i < _portals.Count; i++)
+            {
+                if (_portals[i].Position.XPos != pos.XPos) continue;
+                if (_portals[i].Position.YPos != pos.YPos) continue;
+                lock (_portalLock)
+                {
+                    _console.WriteAt(' ', _portals[i].Position);
+                    _portals.RemoveAt(i);
+                }
+            }
+        }
+
+        private Portal ChoosePortal(Position p)  // Choose portal at other position than p
+        {
+            int i;
+            do
+            {
+                i = _rand.Next(_portals.Count);
+            } while ((_portals[i].Position.XPos == p.XPos && _portals[i].Position.YPos == p.YPos));
+            // Find a random portal different from the one at Position p
+            return _portals[i];
+        }
+        
+        public void AddPortal()
+        {
+            Position pos1;
+            do
+            {
+                if (FindBlankSpot(out pos1, 7))  // Find random space for a new portal
+                {
+                    Portal p = new Portal(pos1);
+                    lock (_portalLock)
+                    {
+                        _console.WriteAt(Portal.PortalChar, pos1);
+                        _portals.Add(p);
+                    }
+                }
+            } while (_portals.Count < 2);  // There must at least be 2 portals for this to work
+        }
+
+        public void AddPortals()
+        {
+            while (!_state.EndProgram)
+            {
+                if (!_state.GamePaused && _boardActivated)
+                {
+                    AddPortal();
+                    if(_portals.Count < 2)  // There must be at least two Portal at any given time
+                        AddPortal();
+                    for (int i = 0; i < _portals.Count; i++)
+                    {   // Tempting to use foreach, but will cause collection modified exception
+                        _portals[i].lifeTime += _state.TreatDelay;
+                        if (_portals[i].lifeTime <= _state.maxPortalLifetime) continue;
+                        lock (_treatLock)
+                        {
+                            _console.WriteAt(' ', _portals[i].Position);
+                            _portals.RemoveAt(i);
+                        }
+                    }
+                }
+                Thread.Sleep(_state.PortalDelay);
+            }
+        }
+
         public void RemoveTreat(Position pos)
         {
             for (int i=0; i < _treats.Count; i++)
@@ -111,72 +177,6 @@
             }
         }
 
-        public void AddPortal()
-        {
-            Position pos1;
-            do
-            {
-                if (FindBlankSpot(out pos1, 7))  // Find random space for a new portal
-                {
-                    Portal p = new Portal(pos1);
-                    lock (_portalLock)
-                    {
-                        _console.WriteAt(Portal.PortalChar, pos1);
-                        _portals.Add(p);
-                    }
-                }
-            } while (_portals.Count < 2);  // There must at least be 2 portals for this to work
-        }
-
-        public void RemovePortal(Position pos)
-        {
-            for (int i=0; i < _portals.Count; i++)
-            {
-                if (_portals[i].Position.XPos != pos.XPos) continue;
-                if (_portals[i].Position.YPos != pos.YPos) continue;
-                lock (_portalLock)
-                {
-                    _console.WriteAt(' ', _portals[i].Position);
-                    _portals.RemoveAt(i);
-                }
-            }
-        }
-
-        private Portal ChoosePortal(Position p)  // Choose portal at other position than p
-        {
-            int i;
-            do
-            {
-                i = _rand.Next(_portals.Count);
-            } while ((_portals[i].Position.XPos == p.XPos && _portals[i].Position.YPos == p.YPos));
-            // Find a random portal different from the one at Position p
-            return _portals[i];
-        }
-        
-        public void AddPortals()
-        {
-            while (!_state.EndProgram)
-            {
-                if (!_state.GamePaused && _boardActivated)
-                {
-                    AddPortal();
-                    if(_portals.Count < 2)  // There must be at least two Portal at any given time
-                        AddPortal();
-                    for (int i = 0; i < _portals.Count; i++)
-                    {   // Tempting to use foreach, but will cause collection modified exception
-                        _portals[i].lifeTime += _state.TreatDelay;
-                        if (_portals[i].lifeTime <= _state.maxPortalLifetime) continue;
-                        lock (_treatLock)
-                        {
-                            _console.WriteAt(' ', _portals[i].Position);
-                            _portals.RemoveAt(i);
-                        }
-                    }
-                }
-                Thread.Sleep(_state.PortalDelay);
-            }
-        }
-
         public void AddTreats() // This thread method constantly adds treats to the board
         {
             while (!_state.EndProgram)
@@ -186,8 +186,8 @@
                     AddTreat();
                     for (int i = 0; i < _treats.Count; i++)
                     {   // Tempting to use foreach, but will cause collection modified exception
-                        _treats[i].lifeTime += _state.TreatDelay;
-                        if (_treats[i].lifeTime <= _state.maxTreatLifetime) continue;
+                        _treats[i].lifeTime -= _state.TreatDelay / (10 + _state.Fluke);  // Fluke affects treat timeout
+                        if (_treats[i].lifeTime > 0) continue;
                         lock (_treatLock)
                         {
                             _console.WriteAt(' ', _treats[i].Position);
@@ -225,11 +225,11 @@
             }
             if (WallChars.Contains(c))                                         // WALL
                 return ObstacleTypes.WALL;
-            if (c is Snake.SnakeBodyChar or Snake.SnakeHeadChar)          // SNAKE
+            if (c is Snake.SnakeBodyChar or Snake.SnakeHeadChar)               // SNAKE
                 return ObstacleTypes.SNAKE;
-            if (c != Portal.PortalChar) return ObstacleTypes.OTHER; // We really shouldn't end up here
+            if (c != Portal.PortalChar) return ObstacleTypes.OTHER;            // We really shouldn't end up here
             // If we got here, it has to be a portal
-            PortalPosition = ChoosePortal(checkPos).GetPosition();         // PORTAL
+            PortalPosition = ChoosePortal(checkPos).GetPosition();             // PORTAL
             return ObstacleTypes.PORTAL;
         }
     }

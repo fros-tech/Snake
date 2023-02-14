@@ -4,6 +4,7 @@
     {
         public const int MinSnakeDelay = 80;
         public const int MinTreatDelay = 1500;
+        public int Fluke = 0; // Values greater than zero affects the lifetime of the treats
         public long maxTreatLifetime { get; set; } = 12000;
         public long maxPortalLifetime { get; set; } = 15000;
         public bool GameOver { get; set; }
