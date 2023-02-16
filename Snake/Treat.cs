@@ -22,7 +22,7 @@ namespace Snake
             NumPoints = numPoints;
             FgColor = fgc;
             BgColor = bgc;
-            lifeTime = 0;
+            lifeTime = 1500;
         }
 
         public static Treat GenerateTreat(Position p)

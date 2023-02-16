@@ -16,7 +16,7 @@
         private System.Timers.Timer _flukeTimer;
 
         public enum ObstacleTypes { PORTAL = 0, SPACE = 1, WALL = 2, SNAKE = 3, TREAT = 4, OTHER = 5 };
-        private static readonly char[] WallChars = { '-', '|' };
+        private static readonly char[] WallChars = { 'P', 'Q' }; // In the buffer ║ and ═ translates into P and Q
 
         private bool _boardActivated;
 
@@ -40,20 +40,21 @@
             int cw = _console.GetWidth();
             _treats.Clear();
             _flukeTimer.Stop();
-            _console.WriteAt('+', 0, 0);
-            _console.WriteAt('+', 0, ch - 2);
-            _console.WriteAt('+', cw - 1, 0);
-            _console.WriteAt('+', cw - 1, ch - 2);
+            _console.WriteAtBuf('╔', 0, 0, ConsoleColor.White, ConsoleColor.Black);
+            _console.WriteAtBuf('╚', 0, ch - 2, ConsoleColor.White, ConsoleColor.Black);
+            _console.WriteAtBuf('╗', cw - 1, 0, ConsoleColor.White, ConsoleColor.Black);
+            _console.WriteAtBuf('╝', cw - 1, ch - 2, ConsoleColor.White, ConsoleColor.Black);
             for (byte b = 1; b < cw - 1; b++)
             {
-                _console.WriteAt('-', b, 0);
-                _console.WriteAt('-', b, ch - 2);
+                _console.WriteAtBuf('═', b, 0, ConsoleColor.White, ConsoleColor.Black);
+                _console.WriteAtBuf('═', b, ch - 2, ConsoleColor.White, ConsoleColor.Black);
             }
             for (byte b = 1; b < ch - 2; b++)
             {
-                _console.WriteAt('|', 0, b);
-                _console.WriteAt('|', cw - 1, b);
+                _console.WriteAtBuf('║', 0, b, ConsoleColor.White, ConsoleColor.Black);
+                _console.WriteAtBuf('║', cw - 1, b, ConsoleColor.White, ConsoleColor.Black);
             }
+            _console.WriteCon();
             for (byte b = 0; b < NumInitialTreats; b++)
               AddTreat();
         }

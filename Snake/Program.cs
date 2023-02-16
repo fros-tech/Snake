@@ -17,14 +17,14 @@ namespace Snake
         private bool GoAgain()
         {  // TODO Needs work
             console.BackupConsole();
-            console.WriteAtBuf("+----------------------------------------------------------------------------------------+", 5, 5,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAtBuf("+--------------------------------------- Stats  -----------------------------------------+", 5, 6,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAtBuf("+--  GAME ENDED BECAUSE: "+state.CauseOfDeath+" --+",5, 7,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAtBuf("+--  Snake lengths                                                                     --+", 5, 8,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            for (int i=0; i < _snakes.Count; i++) { console.WriteAtBuf("+--   Snake# : "+i+",  "+_snakes[i].SnakeLength()+"                                                                   --+",5, 9+i, ConsoleColor.Yellow, ConsoleColor.DarkGreen); }
-            console.WriteAtBuf("+--                                                                                    --+", 5, 12, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAtBuf("+--  Winner is snake #: "+state.LongestSnake +"                                                              --+", 5, 11, ConsoleColor.Yellow, ConsoleColor.Green);
-            console.WriteAtBuf("+----------------------------------------------------------------------------------------+", 5, 13, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("╔════════════════════════════════════════════════════════════════════════════════════════╗", 5, 5,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("╟──────────────────────────────────────┤ Stats ├─────────────────────────────────────────╢", 5, 6,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("║--  GAME ENDED BECAUSE: "+state.CauseOfDeath+" --+",5, 7,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("║--  Snake lengths                                                                     --║", 5, 8,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            for (int i=0; i < _snakes.Count; i++) { console.WriteAtBuf("+--   Snake# : "+i+",  "+_snakes[i].SnakeLength()+"                                                                   --║",5, 9+i, ConsoleColor.Yellow, ConsoleColor.DarkGreen); }
+            console.WriteAtBuf("║--                                                                                    --║", 5, 12, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("║--  Winner is snake #: "+state.LongestSnake +"                                                              --║", 5, 11, ConsoleColor.Yellow, ConsoleColor.Green);
+            console.WriteAtBuf("╚════════════════════════════════════════════════════════════════════════════════════════╝", 5, 13, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
             console.WriteCon();
             ConsoleKey k = console.WaitForKey(new [] {ConsoleKey.J, ConsoleKey.N});
             console.RestoreConsole();

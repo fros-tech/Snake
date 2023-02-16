@@ -239,12 +239,12 @@ internal class MyConsole
 
     public void DrawFrame(int x, int y, int Width, int Height, ConsoleColor fgc, ConsoleColor bgc)
     {
-        WriteAtBuf('+', x, y, fgc, bgc);           
-        WriteAtBuf('+', x, y + Height, fgc, bgc);
-        WriteAtBuf('+', x + Width, y, fgc, bgc); 
-        WriteAtBuf('+', x + Width, y + Height, fgc, bgc);
-        for (byte b = 1; b < Width; b++)  { WriteAtBuf('-', x + b, y, fgc, bgc); WriteAtBuf('-', x + b, y + Height, fgc, bgc); }
-        for (byte b = 1; b < Height; b++) { WriteAtBuf('|', x, y + b, fgc, bgc); WriteAtBuf('|', x + Width, y + b, fgc, bgc);  }
+        WriteAtBuf('╔', x, y, fgc, bgc);           
+        WriteAtBuf('╚', x, y + Height, fgc, bgc);
+        WriteAtBuf('╗', x + Width, y, fgc, bgc); 
+        WriteAtBuf('╝', x + Width, y + Height, fgc, bgc);
+        for (byte b = 1; b < Width; b++)  { WriteAtBuf('═', x + b, y, fgc, bgc); WriteAtBuf('═', x + b, y + Height, fgc, bgc); }
+        for (byte b = 1; b < Height; b++) { WriteAtBuf('║', x, y + b, fgc, bgc); WriteAtBuf('║', x + Width, y + b, fgc, bgc);  }
         for(byte i=1; i<Width; i++)
             for(byte j=1; j<Height; j++)
                 WriteAtBuf(Space,i+x,j+y, fgc, bgc);
