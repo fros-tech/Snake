@@ -17,10 +17,9 @@
         public const char SnakeBodyChar = '*';
         private readonly ConsoleColor _headColor;
         private readonly ConsoleColor _bodyColor;
-        private bool _snakeAlive = true;
         private readonly int _snakeId; // Determines colors and starting coordinates at start of game
         private const byte InitialSnakeLength = 7;
-        private Position? _nextPos;
+        private Position _nextPos;
         private readonly GameState _state;
         private readonly MyConsole _console;
         private Directions _dir;
@@ -44,11 +43,6 @@
         }
 
         public int GetID() { return _snakeId; }
-        public void KillSnake()
-        {
-            _snakeAlive = false;
-            _thread.Join();  // Join to main Thread; We are leaving
-        }
 
         public void Activate() { _snakeActivated = true; }
 

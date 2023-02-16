@@ -70,15 +70,6 @@ internal class MyConsole
     private readonly object _lockWriting = new();  // locking object for when char or string is written to the console
     private static MyConsole instance;
     
-    private struct ScreenChar
-    {
-        public char c;
-        public ConsoleColor fgc;
-        public ConsoleColor bgc;
-    }
-
-    // private ScreenChar[,] _screenCopy_;
-
     private MyConsole() {}
 
     public static MyConsole GetInstance()
@@ -102,11 +93,9 @@ internal class MyConsole
             _consoleHeight = Console.WindowHeight;
             Console.ForegroundColor = ConsoleColor.White;
             Console.BackgroundColor = ConsoleColor.Black;
-            // _screenCopy = new char[_consoleWidth, _consoleHeight];
             buf = new CharInfo[_consoleWidth * _consoleHeight];
             bufCopy = new CharInfo[_consoleWidth * _consoleHeight];
             rect = new SmallRect() { Left = 0, Top = 0, Right = (short) _consoleWidth, Bottom = (short) _consoleHeight };
-            // _screenCopy_ = new ScreenChar[_consoleWidth, _consoleHeight];
             Console.Clear();
             ClearScreenCopy();
             Console.CursorVisible = false;
@@ -115,7 +104,6 @@ internal class MyConsole
 
     private void ClearScreenCopy()
     {
-        // Array.Copy(buf, bufCopy);  // How to fill in a blank buf
         for (int i = 0; i < buf.Length; i++)
         {
             buf[i].Attributes = (short) ( (int) (ConsoleColor.White)  | ((int) (ConsoleColor.Black) << 4));
