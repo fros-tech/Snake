@@ -5,7 +5,7 @@ using Microsoft.Win32.SafeHandles;
 namespace Snake;
 
 internal class MyConsole
-{
+{ 
     [DllImport("Kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
     static extern SafeFileHandle CreateFile(
         string fileName,
