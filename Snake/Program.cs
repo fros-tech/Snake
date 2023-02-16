@@ -6,7 +6,7 @@ namespace Snake
         // TODO Add animation to portals and treats when they appear
         // TODO Refine Game Over/retry? sequence. Both UX and Post mortem
 
-        private const int _numSnakes = 1;  // Initial expected number of snakes. Maximum is 3
+        private static int _numSnakes = 1;  // Default number of snakes. Maximum is 3
         private MyConsole console;
         private Board board;
         private readonly List<Snake> _snakes = new List<Snake>();
@@ -129,6 +129,13 @@ namespace Snake
         
         public static void Main(string[] args)
         {
+            if(args.Length > 0)
+            {
+                int parm;
+                if(int.TryParse(args[0], out parm))
+                  if (parm > 0 && parm < 4) _numSnakes = parm;
+                
+            }
             new Program().Go(); 
         }
     }
