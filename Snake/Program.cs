@@ -21,7 +21,7 @@ namespace Snake
             console.WriteAtBuf("╟──────────────────────────────────────┤ Stats ├─────────────────────────────────────────╢", 5, 6,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
             console.WriteAtBuf("║--  GAME ENDED BECAUSE: "+state.CauseOfDeath+" --+",5, 7,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
             console.WriteAtBuf("║--  Snake lengths                                                                     --║", 5, 8,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            for (int i=0; i < _snakes.Count; i++) { console.WriteAtBuf("+--   Snake# : "+i+",  "+_snakes[i].SnakeLength()+"                                                                   --║",5, 9+i, ConsoleColor.Yellow, ConsoleColor.DarkGreen); }
+            for (int i=0; i < _snakes.Count; i++) { console.WriteAtBuf("║--   Snake# : "+i+",  "+_snakes[i].SnakeLength()+"                                                                   --║",5, 9+i, ConsoleColor.Yellow, ConsoleColor.DarkGreen); }
             console.WriteAtBuf("║--                                                                                    --║", 5, 12, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
             console.WriteAtBuf("║--  Winner is snake #: "+state.LongestSnake +"                                                              --║", 5, 11, ConsoleColor.Yellow, ConsoleColor.Green);
             console.WriteAtBuf("╚════════════════════════════════════════════════════════════════════════════════════════╝", 5, 13, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
@@ -38,17 +38,17 @@ namespace Snake
             Thread.Sleep(400);  // Need threads to discover the new state
             state.GamePaused = true;
             console.BackupConsole();
-            console.WriteAtBuf("+------------------------------------------------------------+", 5, 5,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAtBuf("+------------------------- Snake V2.0 -----------------------+", 5, 6,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAtBuf("+--  CONTROLS:                               TREATS:       --+", 5, 7,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAtBuf("+--  Snake #0   Use 'A', 'W', 'S', 'D'       '~' 1 point   --+", 5, 8,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAtBuf("+--  Snake #1   Use Arrow keys               '$' 2 points  --+", 5, 9,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAtBuf("+--  Snake #2   Use Numpad keys              '£' 3 points  --+", 5, 10, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAtBuf("+--  Press 'Q' or <Esc> to quit game         '#' 5 points  --+", 5, 11, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAtBuf("+--                                                        --+", 5, 12, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAtBuf("+--  PORTALS: '@'                                          --+", 5, 13, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAtBuf("+------------------------------------------------------------+", 5, 14, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
-            console.WriteAtBuf("+----------------- <Esc> to leave help screen ---------------+", 5, 15, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("╔════════════════════════════════════════════════════════════╗", 5, 5,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("╟────────────────────────┤ Snake V2.0 ├──────────────────────╢", 5, 6,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("║--  CONTROLS:                               TREATS:       --║", 5, 7,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("║--  Snake #0   Use 'A', 'W', 'S', 'D'       '~' 1 point   --║", 5, 8,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("║--  Snake #1   Use Arrow keys               '$' 2 points  --║", 5, 9,  ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("║--  Snake #2   Use Numpad keys              '£' 3 points  --║", 5, 10, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("║--  Press 'Q' or <Esc> to quit game         '#' 5 points  --║", 5, 11, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("║--                                                        --║", 5, 12, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("║--  PORTALS: '@'                                          --║", 5, 13, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("╟────────────────────────────────────────────────────────────╢", 5, 14, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
+            console.WriteAtBuf("╚═════════════════ <Esc> to leave help screen ═══════════════╝", 5, 15, ConsoleColor.Yellow, ConsoleColor.DarkGreen);
             console.WriteCon();
             ConsoleKey k = console.WaitForKey(new [] {ConsoleKey.Escape});
             state.GamePaused = _paused;

@@ -161,7 +161,7 @@
                             _nextPos = PortalPosition;            // Next pos is moving out at next portals position
                             break;
                         }
-                        case Board.ObstacleTypes.OTHER:
+                        case Board.ObstacleTypes.UNKNOWN:
                         {
                             throw new NotImplementedException();  // Really shouldn't get here at any time !!
                         }

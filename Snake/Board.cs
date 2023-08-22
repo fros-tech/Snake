@@ -2,7 +2,7 @@
 {
     internal class Board
     {
-        private const byte NumInitialTreats = 12;
+        private const byte NumInitialTreats = 20;
         public const int FlukeTimerDelay = 15000;  // 15 seconds
         private readonly List<Treat> _treats;
         private readonly List<Portal> _portals;
@@ -15,7 +15,7 @@
         private Thread _portalThread;
         private System.Timers.Timer _flukeTimer;
 
-        public enum ObstacleTypes { PORTAL = 0, SPACE = 1, WALL = 2, SNAKE = 3, TREAT = 4, OTHER = 5 };
+        public enum ObstacleTypes { PORTAL = 0, SPACE = 1, WALL = 2, SNAKE = 3, TREAT = 4, UNKNOWN = 5 };
         private static readonly char[] WallChars = { 'P', 'Q' }; // In the buffer ║ and ═ translates into P and Q
 
         private bool _boardActivated;
@@ -65,25 +65,22 @@
         
         private bool FindBlankSpot(out Position pos, int margin)
         {
-            // make up to 5 attempts at blank spot on the Board
-            // Board becomes crowded, and the probability of finding
-            // a blank spot varies as the gameplay progresses.
-            // margin is the desired distance to the edge of the board
-            Position tempPos = new Position();
+            // make up to 5 attempts at finding blank spot on the Board
             int count = 0;
-            int w = _console.GetWidth();
-            int h = _console.GetHeight();
+            int maxX = _console.GetWidth() - margin;
+            int maxY = _console.GetHeight() - margin;
+            int minXY = 1 + margin;
             do
             {
-                tempPos.XPos = _rand.Next(1+margin,w-margin);
-                tempPos.YPos = _rand.Next(1+margin,h-margin);
-                if (_console.IsBlank(tempPos.XPos, tempPos.YPos))
+                int XPos = _rand.Next(minXY, maxX);
+                int YPos = _rand.Next(minXY, maxY);
+                if (_console.IsBlank(XPos, YPos))
                 {
-                    pos = tempPos;
+                    pos = new Position(XPos, YPos);
                     return true;
                 };
                 count++;
-            } while (count < 5);  // If 5 attempts where unsuccessful, give up
+            } while (count < 5);  // Board may have become too crowded
             pos = null;
             return false;
         }
@@ -255,10 +252,12 @@
                 return ObstacleTypes.WALL;
             if (c is Snake.SnakeBodyChar or Snake.SnakeHeadChar)           // SNAKE
                 return ObstacleTypes.SNAKE;
-            if (c != Portal.PortalChar) return ObstacleTypes.OTHER;        // We really shouldn't end up here
-            // If we got here, it has to be a portal
-            PortalPosition = ChoosePortal(checkPos).GetPosition();         // PORTAL
-            return ObstacleTypes.PORTAL;
+            if (c == Portal.PortalChar)                                    // PORTAL
+            {
+                PortalPosition = ChoosePortal(checkPos).GetPosition();
+                return ObstacleTypes.PORTAL;
+            }
+            return ObstacleTypes.UNKNOWN;                                  // We really shouldn't end up here
         }
     }
 }
